@@ -1,7 +1,9 @@
 class Team {
   const Team({
+    this.id = '',
     required this.name,
     required this.activity,
+    this.description = '',
     required this.category,
     required this.requiredSkills,
     required this.openPositions,
@@ -10,8 +12,10 @@ class Team {
     this.isBlue = false,
   });
 
+  final String id;
   final String name;
   final String activity;
+  final String description;
   final String category;
   final List<String> requiredSkills;
   final int openPositions;
@@ -35,3 +39,4 @@ class StudentTalent {
   final List<String> skills;
   final String avatarLabel;
 }
+

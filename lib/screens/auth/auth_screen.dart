@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/app_provider.dart';
+import '../../routes/app_routes.dart'; // [TAMBAHAN: Import AppRoutes]
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../utils/validators.dart'; // [TAMBAHAN: Import validators]
 import '../../widgets/app_logo.dart';
 import '../../widgets/auth_field.dart';
 
@@ -17,15 +19,37 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
+  // [TAMBAHAN: Form Key untuk validasi state Form]
+  final _formKey = GlobalKey<FormState>();
+
+  // [TAMBAHAN: Controller untuk masing-masing input field]
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
   void dispose() {
+    // [TAMBAHAN: Melakukan dispose semua controller]
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
+
+  // [TAMBAHAN: Fungsi _submit untuk memproses validasi form & navigasi ke Home]
+  void _submit() {
+    if (_formKey.currentState?.validate() ?? false) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Form valid! Mengalihkan ke Home...'),
+          backgroundColor: AppColors.primary,
+        ),
+      );
+      // Navigasi ke Home menggunakan Named Route dan menghapus Login dari stack
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -52,36 +76,94 @@ class _AuthScreenState extends State<AuthScreen> {
                   Container(
                     padding: const EdgeInsets.fromLTRB(24, 24, 24, 25),
                     decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border)),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (!provider.isLoginMode) ...[
-                          const AuthField(label: 'Nama Lengkap', hintText: 'Masukkan nama lengkap', icon: Icons.person_outline_rounded),
-                          const SizedBox(height: 16),
-                        ],
-                        const AuthField(
-                          label: 'NIM atau Email Kampus',
-                          hintText: '2111522000 / nama@student...',
-                          icon: Icons.alternate_email_rounded,
-                          suffixIcon: Padding(
-                            padding: EdgeInsets.only(right: 12),
-                            child: Center(
-                              widthFactor: 1,
-                              child: Text(
-                                '@student.unand.ac.id',
-                                style: TextStyle(color: AppColors.primaryDark, fontSize: 10, fontWeight: FontWeight.w700),
+                    child: Form(
+                      // [TAMBAHAN: Membungkus field input dengan Form]
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (!provider.isLoginMode) ...[
+                            AuthField(
+                              label: 'Nama Lengkap',
+                              hintText: 'Masukkan nama lengkap',
+                              icon: Icons.person_outline_rounded,
+                              controller: _nameController, // [TAMBAHAN: controller]
+                              validator: (value) => Validators.requiredField(value, 'Nama Lengkap'), // [TAMBAHAN: validator]
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+                          AuthField(
+                            label: 'NIM atau Email Kampus',
+                            hintText: '2111522000 / nama@student...',
+                            icon: Icons.alternate_email_rounded,
+                            controller: _emailController, // [TAMBAHAN: controller]
+                            validator: (value) {
+                              // [TAMBAHAN: validator email]
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Email wajib diisi';
+                              }
+                              if (Validators.email(value) != null) {
+                                return 'Format email tidak valid';
+                              }
+                              return null;
+                            },
+                            suffixIcon: const Padding(
+                              padding: EdgeInsets.only(right: 12),
+                              child: Center(
+                                widthFactor: 1,
+                                child: Text(
+                                  '@student.unand.ac.id',
+                                  style: TextStyle(color: AppColors.primaryDark, fontSize: 10, fontWeight: FontWeight.w700),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        AuthField(label: 'Kata Sandi', hintText: '••••••••••••', icon: Icons.lock_outline_rounded, controller: _passwordController, obscureText: !provider.isPasswordVisible, suffixIcon: IconButton(onPressed: provider.togglePasswordVisibility, icon: Icon(provider.isPasswordVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: AppColors.mutedText))),
-                        if (provider.isLoginMode) Align(alignment: Alignment.centerRight, child: TextButton(onPressed: () {}, child: const Text('Lupa Kata Sandi?', style: TextStyle(color: AppColors.primaryDark, fontWeight: FontWeight.w700)))),
-                        const SizedBox(height: 4),
-                        SizedBox(width: double.infinity, child: FilledButton.icon(onPressed: widget.onAuthenticated, icon: Icon(provider.isLoginMode ? Icons.login_rounded : Icons.person_add_alt_1_rounded), label: Text(provider.isLoginMode ? 'Masuk ke MyTeam  →' : 'Daftar ke MyTeam'), style: FilledButton.styleFrom(backgroundColor: AppColors.primary, minimumSize: const Size.fromHeight(48), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), textStyle: const TextStyle(fontWeight: FontWeight.w700)))),
-                      ],
+                          const SizedBox(height: 16),
+                          AuthField(
+                            label: 'Kata Sandi',
+                            hintText: '••••••••••••',
+                            icon: Icons.lock_outline_rounded,
+                            controller: _passwordController, // [TAMBAHAN: controller]
+                            obscureText: !provider.isPasswordVisible,
+                            validator: (value) {
+                              // [TAMBAHAN: validator password]
+                              if (value == null || value.isEmpty) {
+                                return 'Password wajib diisi';
+                              }
+                              if (value.length < 8) {
+                                return 'Password minimal 8 karakter';
+                              }
+                              return null;
+                            },
+                            suffixIcon: IconButton(
+                              onPressed: provider.togglePasswordVisibility,
+                              icon: Icon(
+                                provider.isPasswordVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                color: AppColors.mutedText,
+                              ),
+                            ),
+                          ),
+                          if (provider.isLoginMode) Align(alignment: Alignment.centerRight, child: TextButton(onPressed: () {}, child: const Text('Lupa Kata Sandi?', style: TextStyle(color: AppColors.primaryDark, fontWeight: FontWeight.w700)))),
+                          const SizedBox(height: 4),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              onPressed: _submit, // [TAMBAHAN: menjalankan _submit()]
+                              icon: Icon(provider.isLoginMode ? Icons.login_rounded : Icons.person_add_alt_1_rounded),
+                              label: Text(provider.isLoginMode ? 'Masuk ke MyTeam  →' : 'Daftar ke MyTeam'),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                minimumSize: const Size.fromHeight(48),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                textStyle: const TextStyle(fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
+
                   const SizedBox(height: 24),
                   const _DividerLabel(label: 'ATAU AKSES CEPAT'),
                   const SizedBox(height: 18),

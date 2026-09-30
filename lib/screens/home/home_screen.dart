@@ -1,34 +1,183 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../data/team_repository.dart';
+import '../../models/team.dart';
 import '../../providers/app_provider.dart';
+import '../../routes/app_routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/section_heading.dart';
+import '../../widgets/state_views.dart';
 import '../../widgets/team_card.dart';
 
-class HomeScreen extends StatelessWidget {
+/// Enum status tampilan sesuai instruksi Langkah 5
+enum ViewStatus { loading, success, error }
+
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+
+  static String _tabTitle(int index) => ['Beranda', 'Cari', 'Status', 'Profil'][index];
+
+  static void _showCreateTeam(BuildContext context) => showModalBottomSheet<void>(
+        context: context,
+        showDragHandle: true,
+        builder: (context) => Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Buat Tim Baru', style: AppTextStyles.heading),
+              const SizedBox(height: 8),
+              const Text(
+                'Lengkapi nama tim, kegiatan, kategori, deskripsi, posisi, dan keahlian yang dibutuhkan sesuai data tim pada PRD.',
+                style: AppTextStyles.body,
+              ),
+              const SizedBox(height: 18),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Mulai Mengisi'),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      );
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  // [STATE] Repository data tim dari Langkah 2
+  final TeamRepository _repository = TeamRepository();
+
+  // [STATE] Status tampilan (loading, success, error)
+  ViewStatus _status = ViewStatus.loading;
+
+  // [STATE] List data tim dari repository
+  List<Team> _teams = [];
+
+  // [STATE] Pesan error jika terjadi kegagalan
+  String _errorMessage = '';
+
+  // [STATE] Flag untuk simulasikan error (digunakan saat pengujian)
+  bool _simulateError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Memanggil _loadItems() saat widget pertama kali di-init
+    _loadItems();
+  }
+
+  /// Memuat data tim secara asynchronous dari repository
+  Future<void> _loadItems() async {
+    setState(() {
+      _status = ViewStatus.loading;
+      _errorMessage = '';
+    });
+
+    try {
+      final data = await _repository.fetchTeams(shouldFail: _simulateError);
+
+      // Memeriksa mounted setelah await sesuai ketentuan Flutter
+      if (!mounted) return;
+
+      setState(() {
+        _teams = data;
+        _status = ViewStatus.success;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _errorMessage = e.toString().replaceAll('Exception: ', '');
+        _status = ViewStatus.error;
+      });
+    }
+  }
+
+  /// Menapis data tim berdasarkan pencarian dan kategori yang dipilih
+  List<Team> _getFilteredTeams(String searchQuery, String selectedCategory) {
+    final query = searchQuery.trim().toLowerCase();
+    return _teams.where((team) {
+      final matchesCategory = selectedCategory == 'Semua' ||
+          team.categoryLabel == selectedCategory ||
+          team.category == selectedCategory;
+      final matchesQuery = query.isEmpty ||
+          '${team.name} ${team.activity} ${team.requiredSkills.join(' ')}'
+              .toLowerCase()
+              .contains(query);
+      return matchesCategory && matchesQuery;
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
+    final filteredTeams = _getFilteredTeams(provider.searchQuery, provider.selectedCategory);
+
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: SafeArea(child: IndexedStack(index: provider.selectedTab == 0 ? 0 : 1, children: [const _DashboardContent(), _PlaceholderTab(title: _tabTitle(provider.selectedTab))])),
-      bottomNavigationBar: _BottomNav(selectedIndex: provider.selectedTab, onSelected: provider.setSelectedTab),
-      floatingActionButton: provider.selectedTab == 0 ? FloatingActionButton(onPressed: () => _showCreateTeam(context), backgroundColor: AppColors.primary, foregroundColor: Colors.white, child: const Icon(Icons.add, size: 30)) : null,
+      body: SafeArea(
+        child: IndexedStack(
+          index: provider.selectedTab == 0 ? 0 : 1,
+          children: [
+            _DashboardContent(
+              status: _status,
+              teams: filteredTeams,
+              errorMessage: _errorMessage,
+              simulateError: _simulateError,
+              onRetry: _loadItems,
+              onToggleSimulateError: (value) {
+                setState(() {
+                  _simulateError = value;
+                });
+                _loadItems();
+              },
+            ),
+            _PlaceholderTab(title: HomeScreen._tabTitle(provider.selectedTab)),
+          ],
+        ),
+      ),
+      bottomNavigationBar: _BottomNav(
+        selectedIndex: provider.selectedTab,
+        onSelected: provider.setSelectedTab,
+      ),
+      floatingActionButton: provider.selectedTab == 0
+          ? FloatingActionButton(
+              onPressed: () => HomeScreen._showCreateTeam(context),
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              child: const Icon(Icons.add, size: 30),
+            )
+          : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
-
-  static String _tabTitle(int index) => ['Beranda', 'Cari', 'Status', 'Profil'][index];
-
-  static void _showCreateTeam(BuildContext context) => showModalBottomSheet<void>(context: context, showDragHandle: true, builder: (context) => Padding(padding: const EdgeInsets.all(24), child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Buat Tim Baru', style: AppTextStyles.heading), const SizedBox(height: 8), const Text('Lengkapi nama tim, kegiatan, kategori, deskripsi, posisi, dan keahlian yang dibutuhkan sesuai data tim pada PRD.', style: AppTextStyles.body), const SizedBox(height: 18), SizedBox(width: double.infinity, child: FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Mulai Mengisi'))), const SizedBox(height: 16)])));
 }
 
 class _DashboardContent extends StatelessWidget {
-  const _DashboardContent();
+  const _DashboardContent({
+    required this.status,
+    required this.teams,
+    required this.errorMessage,
+    required this.simulateError,
+    required this.onRetry,
+    required this.onToggleSimulateError,
+  });
+
+  final ViewStatus status;
+  final List<Team> teams;
+  final String errorMessage;
+  final bool simulateError;
+  final VoidCallback onRetry;
+  final ValueChanged<bool> onToggleSimulateError;
 
   @override
   Widget build(BuildContext context) {
@@ -41,13 +190,117 @@ class _DashboardContent extends StatelessWidget {
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 16, horizontal, 0), sliver: SliverToBoxAdapter(child: _SearchBar(onChanged: provider.setSearchQuery))),
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 14, horizontal, 0), sliver: SliverToBoxAdapter(child: _CategoryChips(selected: provider.selectedCategory, onSelected: provider.setCategory))),
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 16, horizontal, 0), sliver: const SliverToBoxAdapter(child: _CreateTeamBanner())),
+        
+        // Widget Switch Pengujian Error untuk kemudahan verifikasi Praktikum
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(horizontal, 16, horizontal, 0),
+          sliver: SliverToBoxAdapter(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: simulateError ? const Color(0xFFFDE8E8) : AppColors.lavender,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    simulateError ? Icons.bug_report : Icons.developer_mode,
+                    size: 18,
+                    color: simulateError ? AppColors.danger : AppColors.primaryDark,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      simulateError ? 'Mode Error Aktif (Pengujian)' : 'Mode Normal',
+                      style: AppTextStyles.caption.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: simulateError ? AppColors.danger : AppColors.primaryDark,
+                      ),
+                    ),
+                  ),
+                  Switch(
+                    value: simulateError,
+                    onChanged: onToggleSimulateError,
+                    activeTrackColor: AppColors.danger,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 28, horizontal, 0), sliver: SliverToBoxAdapter(child: SectionHeading(title: 'Rekomendasi Tim', action: 'Lihat Semua ›'))),
-        SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 10, horizontal, 0), sliver: SliverList.builder(itemCount: provider.filteredTeams.length, itemBuilder: (context, index) => TeamCard(team: provider.filteredTeams[index]))),
+        
+        // Handling Status Loading, Error, Empty, dan Data Success
+        _buildTeamListSliver(horizontal),
+
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 14, horizontal, 0), sliver: const SliverToBoxAdapter(child: SectionHeading(title: 'Talenta Mahasiswa', action: 'Geser untuk melihat'))),
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 12, horizontal, 0), sliver: SliverToBoxAdapter(child: _TalentList(provider: provider))),
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 20, horizontal, 32), sliver: const SliverToBoxAdapter(child: _ActiveStats())),
       ]);
     });
+  }
+
+  /// Membangun bagian list tim sesuai status yang aktif
+  Widget _buildTeamListSliver(double horizontal) {
+    if (status == ViewStatus.loading) {
+      return const SliverPadding(
+        padding: EdgeInsets.symmetric(vertical: 32),
+        sliver: SliverToBoxAdapter(
+          child: SizedBox(
+            height: 180,
+            child: LoadingView(message: 'Memuat rekomendasi tim...'),
+          ),
+        ),
+      );
+    }
+
+    if (status == ViewStatus.error) {
+      return SliverPadding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        sliver: SliverToBoxAdapter(
+          child: SizedBox(
+            height: 220,
+            child: ErrorView(
+              message: errorMessage,
+              onRetry: onRetry,
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (teams.isEmpty) {
+      return SliverPadding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        sliver: SliverToBoxAdapter(
+          child: SizedBox(
+            height: 200,
+            child: EmptyView(
+              message: 'Tidak ada tim yang ditemukan.',
+              icon: Icons.search_off_rounded,
+              onRefresh: onRetry,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return SliverPadding(
+      padding: EdgeInsets.fromLTRB(horizontal, 10, horizontal, 0),
+      sliver: SliverList.builder(
+        itemCount: teams.length,
+        // [LANGKAH 7] Bungkus TeamCard dengan GestureDetector agar bisa ditekan
+        itemBuilder: (context, index) => GestureDetector(
+          onTap: () => Navigator.pushNamed(
+            context,
+            AppRoutes.detail,
+            arguments: teams[index], // Kirim data Team sebagai arguments
+          ),
+          child: TeamCard(team: teams[index]),
+        ),
+      ),
+    );
   }
 }
 
@@ -196,3 +449,4 @@ class _PlaceholderTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [const Icon(Icons.construction_rounded, color: AppColors.primary, size: 42), const SizedBox(height: 12), Text('$title segera hadir', style: AppTextStyles.title), const SizedBox(height: 4), const Text('Navigasi sudah siap untuk modul berikutnya.', style: AppTextStyles.caption)]));
 }
+

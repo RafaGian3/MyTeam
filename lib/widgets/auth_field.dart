@@ -12,6 +12,7 @@ class AuthField extends StatelessWidget {
     this.suffixIcon,
     this.obscureText = false,
     this.controller,
+    this.validator,
   });
 
   final String label;
@@ -20,6 +21,7 @@ class AuthField extends StatelessWidget {
   final Widget? suffixIcon;
   final bool obscureText;
   final TextEditingController? controller;
+  final String? Function(String?)? validator;
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +30,10 @@ class AuthField extends StatelessWidget {
       children: [
         Text(label, style: AppTextStyles.label),
         const SizedBox(height: 6),
-        TextField(
+        TextFormField(
           controller: controller,
           obscureText: obscureText,
+          validator: validator,
           style: AppTextStyles.body,
           decoration: InputDecoration(
             hintText: hintText,
@@ -50,3 +53,4 @@ class AuthField extends StatelessWidget {
     );
   }
 }
+
