@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/app_provider.dart';
-import 'screens/auth/auth_screen.dart';
-import 'screens/home/home_screen.dart';
+import 'routes/app_routes.dart';
 import 'theme/app_colors.dart';
 
 void main() {
@@ -26,26 +25,11 @@ class MyApp extends StatelessWidget {
           fontFamily: 'Arial',
           useMaterial3: true,
         ),
-        home: const _AppShell(),
+        // Hapus 'home:' dan ganti dengan named routes
+        initialRoute: AppRoutes.login,
+        onGenerateRoute: AppRoutes.onGenerateRoute,
+        onUnknownRoute: AppRoutes.onUnknownRoute,
       ),
     );
-  }
-}
-
-class _AppShell extends StatefulWidget {
-  const _AppShell();
-
-  @override
-  State<_AppShell> createState() => _AppShellState();
-}
-
-class _AppShellState extends State<_AppShell> {
-  bool isAuthenticated = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return isAuthenticated
-        ? const HomeScreen()
-        : AuthScreen(onAuthenticated: () => setState(() => isAuthenticated = true));
   }
 }

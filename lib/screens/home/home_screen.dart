@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../data/tim_repository.dart';
 import '../../models/tim.dart';
 import '../../providers/app_provider.dart';
+import '../../routes/app_routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/section_heading.dart';
@@ -12,6 +13,38 @@ import '../../widgets/team_card.dart';
 
 // Enum status pemuatan data tim
 enum ViewStatus { loading, success, error }
+
+/// Menampilkan bottom sheet untuk membuat tim baru.
+/// Dibuat sebagai top-level function agar bisa diakses dari widget manapun.
+void showCreateTeamBottomSheet(BuildContext context) =>
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Buat Tim Baru', style: AppTextStyles.heading),
+            const SizedBox(height: 8),
+            const Text(
+              'Lengkapi nama tim, kegiatan, kategori, deskripsi, posisi, dan keahlian yang dibutuhkan sesuai data tim pada PRD.',
+              style: AppTextStyles.body,
+            ),
+            const SizedBox(height: 18),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Mulai Mengisi'),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,14 +61,12 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: AppColors.background,
       body: SafeArea(child: IndexedStack(index: provider.selectedTab == 0 ? 0 : 1, children: [const _DashboardContent(), _PlaceholderTab(title: _tabTitle(provider.selectedTab))])),
       bottomNavigationBar: _BottomNav(selectedIndex: provider.selectedTab, onSelected: provider.setSelectedTab),
-      floatingActionButton: provider.selectedTab == 0 ? FloatingActionButton(onPressed: () => _showCreateTeam(context), backgroundColor: AppColors.primary, foregroundColor: Colors.white, child: const Icon(Icons.add, size: 30)) : null,
+      floatingActionButton: provider.selectedTab == 0 ? FloatingActionButton(onPressed: () => showCreateTeamBottomSheet(context), backgroundColor: AppColors.primary, foregroundColor: Colors.white, child: const Icon(Icons.add, size: 30)) : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
   static String _tabTitle(int index) => ['Beranda', 'Cari', 'Status', 'Profil'][index];
-
-  static void _showCreateTeam(BuildContext context) => showModalBottomSheet<void>(context: context, showDragHandle: true, builder: (context) => Padding(padding: const EdgeInsets.all(24), child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Buat Tim Baru', style: AppTextStyles.heading), const SizedBox(height: 8), const Text('Lengkapi nama tim, kegiatan, kategori, deskripsi, posisi, dan keahlian yang dibutuhkan sesuai data tim pada PRD.', style: AppTextStyles.body), const SizedBox(height: 18), SizedBox(width: double.infinity, child: FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Mulai Mengisi'))), const SizedBox(height: 16)])));
 }
 
 // ── Dashboard Content ──────────────────────────────────────────────────────
@@ -159,8 +190,8 @@ class _TimListTile extends StatelessWidget {
         title: Text(tim.namaTim, style: AppTextStyles.title),
         subtitle: Text('${tim.namaKegiatan} • ${tim.kategoriKegiatan}', style: AppTextStyles.caption),
         trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.mutedText),
-        // onTap akan diisi pada Langkah G (navigasi ke Detail)
-        onTap: () {},
+        // Kirim objek tim sebagai argument ke DetailScreen
+        onTap: () => Navigator.pushNamed(context, AppRoutes.detail, arguments: tim),
       ),
     );
   }
@@ -230,7 +261,7 @@ class _CreateTeamBanner extends StatelessWidget {
                   const SizedBox(height: 6),
                   const Text('Buat tim impianmu sekarang dan temukan talenta terbaik se-Unand!', style: TextStyle(color: Colors.white, fontSize: 12, height: 1.3)),
                   const SizedBox(height: 12),
-                  FilledButton(onPressed: () => HomeScreen._showCreateTeam(context), style: ButtonStyle(backgroundColor: const WidgetStatePropertyAll(Colors.white), foregroundColor: const WidgetStatePropertyAll(AppColors.primaryDark)), child: const Text('Buat Tim  →')),
+                  FilledButton(onPressed: () => showCreateTeamBottomSheet(context), style: ButtonStyle(backgroundColor: const WidgetStatePropertyAll(Colors.white), foregroundColor: const WidgetStatePropertyAll(AppColors.primaryDark)), child: const Text('Buat Tim  →')),
                 ],
               ),
             ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/app_provider.dart';
+import '../../routes/app_routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../utils/validators.dart';
@@ -9,9 +10,7 @@ import '../../widgets/app_logo.dart';
 import '../../widgets/auth_field.dart';
 
 class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key, required this.onAuthenticated});
-
-  final VoidCallback onAuthenticated;
+  const AuthScreen({super.key});
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
@@ -36,7 +35,9 @@ class _AuthScreenState extends State<AuthScreen> {
   void _submit() {
     final isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) return;
-    widget.onAuthenticated();
+    // pushReplacementNamed: Home masuk ke stack dan Login dihapus,
+    // sehingga tombol Back tidak bisa kembali ke halaman Login.
+    Navigator.pushReplacementNamed(context, AppRoutes.home);
   }
 
   @override
@@ -157,7 +158,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           ),
                           if (provider.isLoginMode) Align(alignment: Alignment.centerRight, child: TextButton(onPressed: () {}, child: const Text('Lupa Kata Sandi?', style: TextStyle(color: AppColors.primaryDark, fontWeight: FontWeight.w700)))),
                           const SizedBox(height: 4),
-                          // Tombol Masuk memanggil _submit, bukan langsung onAuthenticated
+                          // Tombol Masuk memanggil _submit, bukan langsung navigasi
                           SizedBox(width: double.infinity, child: FilledButton.icon(onPressed: _submit, icon: Icon(provider.isLoginMode ? Icons.login_rounded : Icons.person_add_alt_1_rounded), label: Text(provider.isLoginMode ? 'Masuk ke MyTeam  →' : 'Daftar ke MyTeam'), style: FilledButton.styleFrom(backgroundColor: AppColors.primary, minimumSize: const Size.fromHeight(48), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), textStyle: const TextStyle(fontWeight: FontWeight.w700)))),
                         ],
                       ),
@@ -165,7 +166,13 @@ class _AuthScreenState extends State<AuthScreen> {
                     const SizedBox(height: 24),
                     const _DividerLabel(label: 'ATAU AKSES CEPAT'),
                     const SizedBox(height: 18),
-                    OutlinedButton.icon(onPressed: widget.onAuthenticated, icon: const Icon(Icons.domain, color: AppColors.primaryDark), label: const Text('Masuk dengan Akun Portal Unand', style: TextStyle(color: AppColors.text, fontWeight: FontWeight.w700)), style: OutlinedButton.styleFrom(backgroundColor: Colors.white, side: BorderSide.none, minimumSize: const Size.fromHeight(48), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))),
+                    OutlinedButton.icon(
+                      // Portal Unand langsung ke home tanpa validasi form
+                      onPressed: () => Navigator.pushReplacementNamed(context, AppRoutes.home),
+                      icon: const Icon(Icons.domain, color: AppColors.primaryDark),
+                      label: const Text('Masuk dengan Akun Portal Unand', style: TextStyle(color: AppColors.text, fontWeight: FontWeight.w700)),
+                      style: OutlinedButton.styleFrom(backgroundColor: Colors.white, side: BorderSide.none, minimumSize: const Size.fromHeight(48), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                    ),
                     const SizedBox(height: 22),
                     Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: AppColors.lavender, borderRadius: BorderRadius.circular(14)), child: Row(children: [Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: AppColors.primarySoft, borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.groups_rounded, color: AppColors.primaryDark)), const SizedBox(width: 14), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('340+ Proyek Aktif', style: AppTextStyles.label), const SizedBox(height: 3), Text('Temukan teman satu visi dari lintas fakultas', style: AppTextStyles.caption)])), const _TinyBadge(label: 'PKM & Lomba')])),
                     const SizedBox(height: 28),
