@@ -1,15 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../data/tim_repository.dart';
+import '../../models/tim.dart';
 import '../../providers/app_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/section_heading.dart';
+import '../../widgets/state_views.dart';
 import '../../widgets/team_card.dart';
 
-class HomeScreen extends StatelessWidget {
+// Enum status pemuatan data tim
+enum ViewStatus { loading, success, error }
+
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
@@ -27,8 +38,84 @@ class HomeScreen extends StatelessWidget {
   static void _showCreateTeam(BuildContext context) => showModalBottomSheet<void>(context: context, showDragHandle: true, builder: (context) => Padding(padding: const EdgeInsets.all(24), child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Buat Tim Baru', style: AppTextStyles.heading), const SizedBox(height: 8), const Text('Lengkapi nama tim, kegiatan, kategori, deskripsi, posisi, dan keahlian yang dibutuhkan sesuai data tim pada PRD.', style: AppTextStyles.body), const SizedBox(height: 18), SizedBox(width: double.infinity, child: FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Mulai Mengisi'))), const SizedBox(height: 16)])));
 }
 
-class _DashboardContent extends StatelessWidget {
+// ── Dashboard Content ──────────────────────────────────────────────────────
+// StatefulWidget karena mengelola state loading/success/error untuk daftar Tim.
+class _DashboardContent extends StatefulWidget {
   const _DashboardContent();
+
+  @override
+  State<_DashboardContent> createState() => _DashboardContentState();
+}
+
+class _DashboardContentState extends State<_DashboardContent> {
+  final TimRepository _repository = TimRepository();
+  ViewStatus _status = ViewStatus.loading;
+  List<Tim> _tims = [];
+  String _errorMessage = '';
+  // Ubah ke true untuk menguji error state, pastikan false sebelum submit
+  final bool _simulateError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Muat data tim pertama kali widget dipasang
+    _loadTims();
+  }
+
+  /// Muat daftar tim dari repository.
+  /// Set status loading → tunggu data → set success atau error.
+  Future<void> _loadTims() async {
+    // Jika belum loading, set ke loading dulu
+    if (_status != ViewStatus.loading) {
+      setState(() => _status = ViewStatus.loading);
+    }
+    try {
+      final result = await _repository.fetchTims(simulateError: _simulateError);
+      // Guard: pastikan widget masih terpasang sebelum setState
+      if (!mounted) return;
+      setState(() {
+        _tims = result;
+        _status = ViewStatus.success;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        // Hapus prefix 'Exception: ' agar pesan lebih bersih
+        _errorMessage = e.toString().replaceFirst('Exception: ', '');
+        _status = ViewStatus.error;
+      });
+    }
+  }
+
+  /// Pilih tampilan berdasarkan status pemuatan
+  Widget _buildContent() {
+    switch (_status) {
+      case ViewStatus.loading:
+        return const SliverFillRemaining(child: LoadingView());
+      case ViewStatus.error:
+        return SliverFillRemaining(
+          child: ErrorView(message: _errorMessage, onRetry: _loadTims),
+        );
+      case ViewStatus.success:
+        return _buildTimList();
+    }
+  }
+
+  /// Daftar tim setelah berhasil dimuat
+  Widget _buildTimList() {
+    if (_tims.isEmpty) {
+      return const SliverFillRemaining(
+        child: EmptyView(message: 'Belum ada tim yang kamu buat.'),
+      );
+    }
+    return SliverList.builder(
+      itemCount: _tims.length,
+      itemBuilder: (context, index) {
+        final tim = _tims[index];
+        return _TimListTile(tim: tim);
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +130,12 @@ class _DashboardContent extends StatelessWidget {
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 16, horizontal, 0), sliver: const SliverToBoxAdapter(child: _CreateTeamBanner())),
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 28, horizontal, 0), sliver: SliverToBoxAdapter(child: SectionHeading(title: 'Rekomendasi Tim', action: 'Lihat Semua ›'))),
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 10, horizontal, 0), sliver: SliverList.builder(itemCount: provider.filteredTeams.length, itemBuilder: (context, index) => TeamCard(team: provider.filteredTeams[index]))),
+        SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 24, horizontal, 0), sliver: SliverToBoxAdapter(child: SectionHeading(title: 'Tim Saya', action: ''))),
+        // ── Daftar Tim dengan state loading/error/success ──────────────────
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(horizontal, 10, horizontal, 0),
+          sliver: _buildContent(),
+        ),
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 14, horizontal, 0), sliver: const SliverToBoxAdapter(child: SectionHeading(title: 'Talenta Mahasiswa', action: 'Geser untuk melihat'))),
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 12, horizontal, 0), sliver: SliverToBoxAdapter(child: _TalentList(provider: provider))),
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 20, horizontal, 32), sliver: const SliverToBoxAdapter(child: _ActiveStats())),
@@ -50,6 +143,30 @@ class _DashboardContent extends StatelessWidget {
     });
   }
 }
+
+// ── Tim List Tile ──────────────────────────────────────────────────────────
+class _TimListTile extends StatelessWidget {
+  const _TimListTile({required this.tim});
+  final Tim tim;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        title: Text(tim.namaTim, style: AppTextStyles.title),
+        subtitle: Text('${tim.namaKegiatan} • ${tim.kategoriKegiatan}', style: AppTextStyles.caption),
+        trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.mutedText),
+        // onTap akan diisi pada Langkah G (navigasi ke Detail)
+        onTap: () {},
+      ),
+    );
+  }
+}
+
+// ── Semua widget private di bawah tidak diubah dari Praktikum 1 ───────────
 
 class _TopBar extends StatelessWidget {
   @override
