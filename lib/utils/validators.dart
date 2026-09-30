@@ -54,4 +54,19 @@ class Validators {
     }
     return null;
   }
+
+  // FR-01: Validator IPK (0.00 – 4.00)
+  static String? ipk(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'IPK wajib diisi';
+    }
+    final parsed = double.tryParse(value.trim());
+    if (parsed == null) {
+      return 'IPK harus berupa angka (contoh: 3.71)';
+    }
+    if (parsed < 0 || parsed > 4) {
+      return 'IPK harus berada di antara 0,00 dan 4,00';
+    }
+    return null;
+  }
 }

@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 
+import '../models/data_diri.dart';
 import '../models/team.dart';
 import '../screens/auth/auth_screen.dart';
 import '../screens/catatan_form_screen.dart';
 import '../screens/detail/detail_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/not_found_screen.dart';
+import '../screens/profile/data_diri_form_screen.dart'; // FR-01
+import '../screens/profile/data_diri_screen.dart'; // FR-01
 
 abstract final class AppRoutes {
   static const login = '/login';
   static const home = '/home';
   static const detail = '/detail';
   static const catatanForm = '/catatan-form';
+  static const dataDiri = '/data-diri'; // FR-01
+  static const dataDiriForm = '/data-diri-form'; // FR-01
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -39,13 +44,28 @@ abstract final class AppRoutes {
             settings: settings,
           );
         }
-        // Jika arguments tidak valid, arahkan ke NotFoundScreen
         return onUnknownRoute(settings);
 
       case catatanForm:
-        // Mengembalikan MaterialPageRoute<String> agar pop dapat membawa nilai String
         return MaterialPageRoute<String>(
           builder: (_) => const CatatanFormScreen(),
+          settings: settings,
+        );
+
+      // FR-01: Route halaman data diri
+      case dataDiri:
+        return MaterialPageRoute(
+          builder: (_) => const DataDiriScreen(),
+          settings: settings,
+        );
+
+      // FR-01: Route form data diri — argument opsional (DataDiri | null)
+      case dataDiriForm:
+        final args = settings.arguments;
+        return MaterialPageRoute<DataDiri>(
+          builder: (_) => DataDiriFormScreen(
+            existing: args is DataDiri ? args : null,
+          ),
           settings: settings,
         );
 

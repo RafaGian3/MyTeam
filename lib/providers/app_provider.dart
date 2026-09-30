@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../data/data_diri_repository.dart'; // FR-01
+import '../models/data_diri.dart'; // FR-01
 import '../models/team.dart';
 
 class AppProvider extends ChangeNotifier {
@@ -8,6 +10,38 @@ class AppProvider extends ChangeNotifier {
   int selectedTab = 0;
   String searchQuery = '';
   String selectedCategory = 'Semua';
+
+  // FR-01: ID pengguna yang sedang login (hardcode sementara, belum ada auth)
+  final String idPengguna = 'user-2411522001';
+
+  // FR-01: Repository data diri
+  final DataDiriRepository dataDiriRepository = DataDiriRepository();
+
+  // FR-01: Data diri pengguna yang sedang login
+  DataDiri? dataDiri;
+
+  // FR-01: Set data diri (dipanggil setelah load/save dari screen)
+  void setDataDiri(DataDiri? value) {
+    dataDiri = value;
+    notifyListeners();
+  }
+
+  // FR-01: Hapus data diri dari state (dipanggil setelah delete berhasil)
+  void clearDataDiri() {
+    dataDiri = null;
+    notifyListeners();
+  }
+
+  // FR-01: Logout — reset state ke awal
+  void logout() {
+    isLoginMode = true;
+    isPasswordVisible = false;
+    selectedTab = 0;
+    searchQuery = '';
+    selectedCategory = 'Semua';
+    dataDiri = null;
+    notifyListeners();
+  }
 
   final List<Team> teams = const [
     Team(

@@ -49,6 +49,7 @@ lib/firebase_options.dart
 .pub-cache/
 .pub/
 /build/
+/android/build/
 /coverage/
 
 # Android local machine configuration
