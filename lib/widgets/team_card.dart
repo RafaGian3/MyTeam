@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/team.dart';
+import '../routes/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
@@ -9,11 +10,18 @@ class TeamCard extends StatelessWidget {
 
   final Team team;
 
+  // (7) kirim tim yang dipilih ke layar Detail
+  void _openDetail(BuildContext context) {
+    Navigator.pushNamed(context, AppRoutes.detail, arguments: team);
+  }
+
   @override
   Widget build(BuildContext context) {
     final progress = team.members / team.capacity;
     final accent = team.isBlue ? AppColors.blue : AppColors.primary;
-    return Container(
+    return GestureDetector(
+      onTap: () => _openDetail(context),
+      child: Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
       decoration: BoxDecoration(
@@ -54,8 +62,9 @@ class TeamCard extends StatelessWidget {
           const SizedBox(height: 10),
           Row(children: [const Text('Kapasitas Tim', style: AppTextStyles.caption), const Spacer(), Text('${team.members}/${team.capacity} Anggota', style: AppTextStyles.caption.copyWith(color: AppColors.text, fontWeight: FontWeight.w600))]),
           const SizedBox(height: 5),
-          Row(children: [Expanded(child: ClipRRect(borderRadius: BorderRadius.circular(8), child: LinearProgressIndicator(value: progress, minHeight: 7, backgroundColor: AppColors.lavenderStrong, color: accent))), const SizedBox(width: 12), SizedBox(height: 34, child: FilledButton(onPressed: () {}, style: FilledButton.styleFrom(backgroundColor: AppColors.primaryDark, padding: const EdgeInsets.symmetric(horizontal: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))), child: const Text('Detail →')))]),
+          Row(children: [Expanded(child: ClipRRect(borderRadius: BorderRadius.circular(8), child: LinearProgressIndicator(value: progress, minHeight: 7, backgroundColor: AppColors.lavenderStrong, color: accent))), const SizedBox(width: 12), SizedBox(height: 34, child: FilledButton(onPressed: () => _openDetail(context), style: FilledButton.styleFrom(backgroundColor: AppColors.primaryDark, padding: const EdgeInsets.symmetric(horizontal: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))), child: const Text('Detail →')))]),
         ],
+      ),
       ),
     );
   }

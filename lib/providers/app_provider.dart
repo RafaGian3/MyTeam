@@ -9,28 +9,6 @@ class AppProvider extends ChangeNotifier {
   String searchQuery = '';
   String selectedCategory = 'Semua';
 
-  final List<Team> teams = const [
-    Team(
-      name: 'Inovasi PKM-KC Unand',
-      activity: 'Pekan Ilmiah Mahasiswa Nasional (PIMNAS 2026)',
-      category: 'PKM-KC',
-      requiredSkills: ['IoT Engineer', 'Mobile Dev'],
-      openPositions: 2,
-      capacity: 4,
-      members: 2,
-    ),
-    Team(
-      name: 'Fintech Hackathon Syariah',
-      activity: 'Kompetisi Nasional BSI Hackathon',
-      category: 'Competition',
-      requiredSkills: ['UI/UX Designer (1)'],
-      openPositions: 1,
-      capacity: 4,
-      members: 3,
-      isBlue: true,
-    ),
-  ];
-
   final List<StudentTalent> talents = const [
     StudentTalent(
       name: 'Aisyah Putri',
@@ -71,9 +49,10 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<Team> get filteredTeams {
+  /// Menyaring daftar tim (hasil dari repository) berdasarkan kategori & pencarian.
+  List<Team> filterTeams(List<Team> source) {
     final query = searchQuery.trim().toLowerCase();
-    return teams.where((team) {
+    return source.where((team) {
       final matchesCategory = selectedCategory == 'Semua' ||
           team.categoryLabel == selectedCategory ||
           team.category == selectedCategory;

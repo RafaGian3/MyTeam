@@ -1,34 +1,129 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../data/team_repository.dart';
+import '../../models/team.dart';
 import '../../providers/app_provider.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/section_heading.dart';
+import '../../widgets/state_views.dart';
 import '../../widgets/team_card.dart';
 
-class HomeScreen extends StatelessWidget {
+// (1) status tampilan
+enum ViewStatus { loading, success, error }
+
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final provider = context.watch<AppProvider>();
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(child: IndexedStack(index: provider.selectedTab == 0 ? 0 : 1, children: [const _DashboardContent(), _PlaceholderTab(title: _tabTitle(provider.selectedTab))])),
-      bottomNavigationBar: _BottomNav(selectedIndex: provider.selectedTab, onSelected: provider.setSelectedTab),
-      floatingActionButton: provider.selectedTab == 0 ? FloatingActionButton(onPressed: () => _showCreateTeam(context), backgroundColor: AppColors.primary, foregroundColor: Colors.white, child: const Icon(Icons.add, size: 30)) : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-    );
-  }
+  State<HomeScreen> createState() => _HomeScreenState();
 
   static String _tabTitle(int index) => ['Beranda', 'Cari', 'Status', 'Profil'][index];
 
   static void _showCreateTeam(BuildContext context) => showModalBottomSheet<void>(context: context, showDragHandle: true, builder: (context) => Padding(padding: const EdgeInsets.all(24), child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Buat Tim Baru', style: AppTextStyles.heading), const SizedBox(height: 8), const Text('Lengkapi nama tim, kegiatan, kategori, deskripsi, posisi, dan keahlian yang dibutuhkan sesuai data tim pada PRD.', style: AppTextStyles.body), const SizedBox(height: 18), SizedBox(width: double.infinity, child: FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Mulai Mengisi'))), const SizedBox(height: 16)])));
 }
 
+class _HomeScreenState extends State<HomeScreen> {
+  // (2) variabel state
+  final _repository = TeamRepository();
+  ViewStatus _status = ViewStatus.loading;
+  List<Team> _teams = [];
+  String _errorMessage = '';
+  bool _simulateError = false; // ubah ke true untuk menguji error state
+
+  // (3) ambil data saat layar pertama kali dibuka
+  @override
+  void initState() {
+    super.initState();
+    _loadTeams();
+  }
+
+  // (4) mengambil data + menangani error
+  Future<void> _loadTeams() async {
+    if (_status != ViewStatus.loading) {
+      setState(() => _status = ViewStatus.loading);
+    }
+    try {
+      final teams = await _repository.fetchTeams(simulateError: _simulateError);
+      if (!mounted) return;
+      setState(() {
+        _teams = teams;
+        _status = ViewStatus.success;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = e.toString().replaceFirst('Exception: ', '');
+        _status = ViewStatus.error;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<AppProvider>();
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      // (5) isi daftar tim tergantung status
+      body: SafeArea(child: IndexedStack(index: provider.selectedTab == 0 ? 0 : 1, children: [
+        _DashboardContent(
+          status: _status,
+          teams: provider.filterTeams(_teams),
+          hasAnyTeams: _teams.isNotEmpty,
+          errorMessage: _errorMessage,
+          onRetry: _loadTeams,
+        ),
+        _PlaceholderTab(title: HomeScreen._tabTitle(provider.selectedTab)),
+      ])),
+      bottomNavigationBar: _BottomNav(selectedIndex: provider.selectedTab, onSelected: provider.setSelectedTab),
+      floatingActionButton: provider.selectedTab == 0 ? FloatingActionButton(onPressed: () => HomeScreen._showCreateTeam(context), backgroundColor: AppColors.primary, foregroundColor: Colors.white, child: const Icon(Icons.add, size: 30)) : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    );
+  }
+}
+
 class _DashboardContent extends StatelessWidget {
-  const _DashboardContent();
+  const _DashboardContent({
+    required this.status,
+    required this.teams,
+    required this.hasAnyTeams,
+    required this.errorMessage,
+    required this.onRetry,
+  });
+
+  final ViewStatus status;
+  final List<Team> teams; // sudah disaring (kategori + pencarian)
+  final bool hasAnyTeams; // false = data dari repository memang kosong
+  final String errorMessage;
+  final VoidCallback onRetry;
+
+  // (6) memilih tampilan: loading / error / empty / daftar data
+  Widget _buildTeamSliver() {
+    return switch (status) {
+      ViewStatus.loading => const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 32),
+            child: LoadingView(message: 'Memuat tim...'),
+          ),
+        ),
+      ViewStatus.error => SliverToBoxAdapter(
+          child: ErrorView(message: errorMessage, onRetry: onRetry),
+        ),
+      ViewStatus.success => teams.isEmpty
+          ? SliverToBoxAdapter(
+              child: EmptyView(
+                message: hasAnyTeams
+                    ? 'Tidak ada tim yang cocok dengan pencarianmu.'
+                    : 'Belum ada data.',
+              ),
+            )
+          : SliverList.builder(
+              itemCount: teams.length,
+              itemBuilder: (context, index) => TeamCard(team: teams[index]),
+            ),
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +137,7 @@ class _DashboardContent extends StatelessWidget {
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 14, horizontal, 0), sliver: SliverToBoxAdapter(child: _CategoryChips(selected: provider.selectedCategory, onSelected: provider.setCategory))),
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 16, horizontal, 0), sliver: const SliverToBoxAdapter(child: _CreateTeamBanner())),
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 28, horizontal, 0), sliver: SliverToBoxAdapter(child: SectionHeading(title: 'Rekomendasi Tim', action: 'Lihat Semua ›'))),
-        SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 10, horizontal, 0), sliver: SliverList.builder(itemCount: provider.filteredTeams.length, itemBuilder: (context, index) => TeamCard(team: provider.filteredTeams[index]))),
+        SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 10, horizontal, 0), sliver: _buildTeamSliver()),
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 14, horizontal, 0), sliver: const SliverToBoxAdapter(child: SectionHeading(title: 'Talenta Mahasiswa', action: 'Geser untuk melihat'))),
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 12, horizontal, 0), sliver: SliverToBoxAdapter(child: _TalentList(provider: provider))),
         SliverPadding(padding: EdgeInsets.fromLTRB(horizontal, 20, horizontal, 32), sliver: const SliverToBoxAdapter(child: _ActiveStats())),

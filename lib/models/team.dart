@@ -1,6 +1,8 @@
 class Team {
   const Team({
+    required this.id,
     required this.name,
+    required this.description,
     required this.activity,
     required this.category,
     required this.requiredSkills,
@@ -10,7 +12,9 @@ class Team {
     this.isBlue = false,
   });
 
+  final String id;
   final String name;
+  final String description;
   final String activity;
   final String category;
   final List<String> requiredSkills;
