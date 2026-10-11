@@ -10,8 +10,8 @@
 | **Project Name** | MyTeam – Aplikasi Mobile Pencarian dan Pembentukan Tim Mahasiswa Unand |
 | **Team Members** | 1. Nayla Puspita Sari (2411521007)<br>2. Diva Ramadhani (2411521017)<br>3. Fuadi Dhiyaulhaq (2411522001)<br>4. Rafa Gian Atthari (2411522014) |
 | **Course** | Mobile Programming |
-| **Version** | 1.2 |
-| **Date** | 30 September 2026 |
+| **Version** | 1.3 |
+| **Date** | 11 Oktober 2026 |
 
 ---
 
@@ -31,7 +31,7 @@ Pengguna utama MyTeam adalah mahasiswa aktif Universitas Andalas yang ingin meng
 ### 1.3 User Needs / Pain Points
 - Mahasiswa membutuhkan cara yang lebih mudah untuk menemukan tim atau calon anggota yang sesuai dengan minat, keahlian, pengalaman, dan kebutuhan suatu kegiatan.
 - Mahasiswa membutuhkan jangkauan pencarian yang lebih luas untuk menemukan tim atau calon anggota di luar lingkungan pertemanan, kelas, dan organisasi.
-- Mahasiswa membutuhkan informasi profil, pendidikan, minat, keahlian, dan pengalaman beserta bukti pendukungnya untuk menilai kesesuaian dengan tim atau calon anggota.
+- Mahasiswa membutuhkan informasi profil, pendidikan, minat, keahlian, dan pengalaman beserta deskripsinya untuk menilai kesesuaian dengan tim atau calon anggota.
 - Mahasiswa membutuhkan proses yang jelas untuk membuat tim, mencari tim atau calon anggota, mengajukan diri untuk bergabung, mengajukan permintaan kepada calon anggota, serta menerima atau menolak pengajuan.
 - Mahasiswa membutuhkan informasi mengenai status pengajuan agar dapat mengetahui apakah pengajuan bergabung masih menunggu, diterima, atau ditolak.
 
@@ -47,7 +47,7 @@ MyTeam bertujuan menyediakan aplikasi mobile bagi mahasiswa Universitas Andalas 
 - **FR-02:** Pengguna dapat mengelola media sosial berupa nama media sosial dan tautannya.
 - **FR-03:** Pengguna dapat mengelola minat berupa nama minat dan deskripsinya.
 - **FR-04:** Pengguna dapat mengelola keahlian berupa nama keahlian dan deskripsinya.
-- **FR-05:** Pengguna dapat mengelola pengalaman berupa nama kegiatan, peran, tahun, dan bukti pendukung.
+- **FR-05:** Pengguna dapat mengelola pengalaman berupa nama kegiatan, peran, tahun, dan deskripsi pengalaman.
 - **FR-06:** Pengguna dapat melihat informasi tim yang diikuti berupa nama tim, nama kegiatan, kategori kegiatan, dan posisi.
 - **FR-07:** Pengguna dapat mengelola preferensi pencarian sebagai pencari tim, pencari anggota, atau keduanya.
 - **FR-08:** Sistem dapat mengirimkan notifikasi terkait aktivitas data riwayat diri.
@@ -59,9 +59,9 @@ MyTeam bertujuan menyediakan aplikasi mobile bagi mahasiswa Universitas Andalas 
 - **FR-14:** Pengguna sebagai pencari tim dapat melihat feed tim atau kegiatan terbaru yang tersedia.
 - **FR-15:** Pengguna sebagai pencari tim dapat melakukan pencarian dan penyaringan tim berdasarkan nama kegiatan, kategori kegiatan, keahlian yang dibutuhkan, dan kriteria lainnya.
 - **FR-16:** Pengguna sebagai pencari tim dapat melihat detail tim dari hasil pencarian.
-- **FR-17:** Pengguna sebagai pencari tim dapat mengajukan permintaan untuk bergabung ke tim yang dipilih.
+- **FR-17:** Pengguna sebagai pencari tim dapat mengajukan permintaan untuk bergabung ke tim yang dipilih dengan menyertakan posisi yang dilamar dan pesan pengajuan.
 - **FR-18:** Pembuat tim dapat melihat daftar pengajuan bergabung ke tim yang dibuatnya.
-- **FR-19:** Pembuat tim dapat melihat detail pengajuan bergabung.
+- **FR-19:** Pembuat tim dapat melihat detail pengajuan bergabung (termasuk posisi yang dilamar, pesan pengajuan, dan profil calon anggota).
 - **FR-20:** Pembuat tim dapat menerima atau menolak pengajuan bergabung.
 - **FR-21:** Pengguna dapat melihat status pengajuan bergabung dan menerima notifikasi ketika status pengajuan berubah.
 - **FR-22:** Pengguna sebagai pencari anggota dapat mencari calon anggota berdasarkan nama pengguna, keahlian, pengalaman, dan minat yang tersedia pada profil.
@@ -85,9 +85,9 @@ MyTeam bertujuan menyediakan aplikasi mobile bagi mahasiswa Universitas Andalas 
 
 | No. | Core Feature | Purpose / Value |
 | :---: | :--- | :--- |
-| **1** | **Akun & Data Riwayat Diri** | Memungkinkan mahasiswa membuat akun dan mengelola informasi diri, pendidikan, keahlian, minat, pengalaman beserta bukti pendukung, serta preferensi pencarian, dan melihat tim yang diikuti sebagai dasar untuk menilai kesesuaian dalam pembentukan tim. |
+| **1** | **Akun & Data Riwayat Diri** | Memungkinkan mahasiswa membuat akun dan mengelola informasi diri, pendidikan, keahlian, minat, pengalaman (nama kegiatan, peran, tahun, dan deskripsi), serta preferensi pencarian, dan melihat tim yang diikuti sebagai dasar untuk menilai kesesuaian dalam pembentukan tim. |
 | **2** | **Pembentukan Tim** | Memungkinkan mahasiswa membuat, melihat, mengubah, dan menghapus tim beserta kebutuhan anggota dan dokumen pendukung (poster atau panduan kegiatan) untuk suatu kegiatan. |
-| **3** | **Pencarian Tim & Pengajuan Bergabung** | Memudahkan pencari tim melihat feed tim terbaru, mencari dan menyaring tim, melihat detail tim, serta mengajukan permintaan bergabung; pembuat tim dapat melihat serta menerima atau menolak pengajuan, dan pencari tim dapat memantau status pengajuannya. |
+| **3** | **Pencarian Tim & Pengajuan Bergabung** | Memudahkan pencari tim melihat feed tim terbaru, mencari dan menyaring tim, melihat detail tim, serta mengajukan permintaan bergabung dengan memilih posisi yang dilamar; pembuat tim dapat melihat serta menerima atau menolak pengajuan, dan pencari tim dapat memantau status pengajuannya. |
 | **4** | **Pencarian Anggota & Pengajuan Anggota** | Memudahkan pembuat tim mencari calon anggota berdasarkan nama, keahlian, pengalaman, dan minat, melihat profil calon anggota, serta mengajukan permintaan bergabung yang dapat diterima atau ditolak oleh calon anggota. |
 | **5** | **Notifikasi** | Memberikan informasi kepada pengguna mengenai pembaruan data riwayat diri, pengajuan bergabung ke tim, pengajuan kepada calon anggota beserta responsnya, dan perubahan status pengajuan. |
 
@@ -108,12 +108,12 @@ Terdapat dua peran utama pengguna dalam aplikasi MyTeam, yaitu pencari anggota d
 | **Media_Sosial** | `id_media_sosial`, `id_pengguna`, `nama_media_sosial`, `link_media_sosial` | Menyimpan tautan media sosial mahasiswa sebagai kontak tambahan pada profil. |
 | **Data_Minat** | `id_minat`, `id_pengguna`, `minat`, `deskripsi_minat` | Menyimpan minat mahasiswa yang menjadi dasar pencarian dan penilaian kesesuaian. |
 | **Data_Keahlian** | `id_keahlian`, `id_pengguna`, `keahlian`, `deskripsi_keahlian` | Menyimpan keahlian mahasiswa yang menjadi dasar pencarian dan penilaian kesesuaian. |
-| **Data_Pengalaman** | `id_pengalaman`, `id_pengguna`, `nama_kegiatan`, `peran`, `tahun`, `bukti_pendukung` | Menyimpan pengalaman mahasiswa beserta bukti pendukung berupa foto atau dokumen. |
+| **Data_Pengalaman** | `id_pengalaman`, `id_pengguna`, `nama_kegiatan`, `peran`, `tahun`, `deskripsi_pengalaman` | Menyimpan riwayat pengalaman kegiatan mahasiswa beserta deskripsi pengalamannya (tanpa bukti pendukung/media). |
 | **Data_Tim** | `id_tim`, `id_pengguna` (pembuat tim), `nama_tim`, `nama_kegiatan`, `kategori_kegiatan`, `deskripsi`, `status_tim` | Menyimpan informasi tim yang dibuat mahasiswa untuk suatu kegiatan. |
 | **Kebutuhan_Tim** | `id_kebutuhan`, `id_tim`, `posisi_dibutuhkan`, `keahlian_dibutuhkan`, `jumlah_anggota_dibutuhkan` | Menyimpan kebutuhan anggota suatu tim (posisi, keahlian, dan jumlah). |
 | **Dokumen_Pendukung** | `id_dokumen`, `id_tim`, `jenis_dokumen`, `nama_file`, `path_file`, `urutan` | Menyimpan dokumen pendukung tim, seperti poster atau panduan kegiatan. |
 | **Anggota_Tim** | `id_anggota_tim`, `id_tim`, `id_pengguna`, `posisi` | Menyimpan data mahasiswa yang telah diterima dan bergabung dalam suatu tim. |
-| **Pengajuan_Bergabung_Tim** | `id_pengajuan_bergabung_tim`, `id_tim`, `id_pengguna`, `pesan_pengajuan`, `waktu_pengajuan`, `status_pengajuan` | Menyimpan pengajuan pencari tim untuk bergabung ke tim beserta statusnya, yaitu menunggu, diterima, atau ditolak. |
+| **Pengajuan_Bergabung_Tim** | `id_pengajuan_bergabung_tim`, `id_tim`, `id_pengguna`, `posisi`, `pesan_pengajuan`, `waktu_pengajuan`, `status_pengajuan` | Menyimpan pengajuan pencari tim untuk bergabung ke tim beserta posisi yang dilamar dan statusnya, yaitu menunggu, diterima, atau ditolak. |
 | **Pengajuan_Anggota** | `id_pengajuan_anggota`, `id_tim`, `id_pengguna`, `pesan_pengajuan`, `waktu_pengajuan`, `status_pengajuan` | Menyimpan pengajuan pembuat tim kepada calon anggota untuk bergabung ke tim beserta statusnya, yaitu menunggu, diterima, atau ditolak. |
 | **Notifikasi** | `id_notifikasi`, `id_pengguna`, `id_pengajuan_bergabung_tim`, `id_pengajuan_anggota`, `jenis_notifikasi`, `pesan_notifikasi`, `waktu_notifikasi`, `status_dibaca` | Menyimpan notifikasi untuk pengguna terkait pembaruan data riwayat diri, pengajuan bergabung, pengajuan anggota, dan perubahan statusnya. |
 
@@ -122,9 +122,9 @@ Terdapat dua peran utama pengguna dalam aplikasi MyTeam, yaitu pencari anggota d
 #### Constraints
 - Aplikasi dikembangkan menggunakan Flutter untuk perangkat dengan sistem operasi Android versi minimal 8.0.
 - Aplikasi membutuhkan koneksi internet untuk menjalankan fungsi yang memerlukan pertukaran dan pembaruan data antarpengguna.
-- Data aplikasi, termasuk file bukti pendukung dan dokumen pendukung tim, disimpan menggunakan database yang mendukung pertukaran data antarpengguna dan tidak menggunakan Firebase Storage.
+- Data aplikasi, termasuk dokumen pendukung tim, disimpan menggunakan database yang mendukung pertukaran data antarpengguna dan tidak menggunakan Firebase Storage.
 - Aplikasi tidak menggunakan admin sebagai aktor utama sehingga proses utama dilakukan secara langsung antarmahasiswa.
-- Pengunggahan foto profil, bukti pendukung pengalaman, dan dokumen pendukung tim memerlukan izin akses terhadap kamera, galeri, atau penyimpanan perangkat.
+- Pengunggahan foto profil dan dokumen pendukung tim memerlukan izin akses terhadap galeri atau penyimpanan perangkat.
 
 #### Assumptions
 - Pengguna aplikasi merupakan mahasiswa aktif Universitas Andalas.
@@ -147,7 +147,7 @@ Terdapat dua peran utama pengguna dalam aplikasi MyTeam, yaitu pencari anggota d
 ## 3. Scope
 
 ### 3.1 In Scope
-- Pengelolaan akun dan data riwayat diri mahasiswa, termasuk pendaftaran, login, informasi diri dan pendidikan, keahlian, minat, pengalaman beserta bukti pendukung, media sosial, foto profil, preferensi pencarian, dan informasi tim yang diikuti.
+- Pengelolaan akun dan data riwayat diri mahasiswa, termasuk pendaftaran, login, informasi diri dan pendidikan, keahlian, minat, pengalaman (nama kegiatan, peran, tahun, dan deskripsi pengalaman), media sosial, foto profil, preferensi pencarian, dan informasi tim yang diikuti.
 - Pembuatan tim, termasuk pembuatan, penampilan, pengubahan, dan penghapusan tim beserta kebutuhan anggota dan dokumen pendukung (poster atau panduan kegiatan).
 - Pencarian tim (feed tim terbaru, pencarian, dan penyaringan) serta pencarian calon anggota berdasarkan nama, keahlian, pengalaman, dan minat, termasuk penampilan detail tim dan profil calon anggota.
 - Pengajuan bergabung dua arah, yaitu pengajuan pencari tim ke tim beserta penerimaan atau penolakan oleh pembuat tim, serta pengajuan pembuat tim kepada calon anggota beserta penerimaan atau penolakan oleh calon anggota, termasuk melihat status pengajuan.
@@ -177,13 +177,13 @@ Mahasiswa aktif Universitas Andalas dengan dua peran, yaitu pencari tim (mencari
 Menyediakan wadah bagi mahasiswa untuk menemukan, membentuk, dan bergabung dengan tim berdasarkan minat, keahlian, pengalaman, dan kebutuhan kegiatan. Mempermudah dan mempercepat proses pencarian serta pembentukan tim mahasiswa, menggantikan cara pencarian manual anggota tim melalui berbagai grup dan media komunikasi.
 
 ### Core Features
-- **Akun & Data Riwayat Diri** — mahasiswa membuat akun dan mengelola informasi diri, pendidikan, keahlian, minat, pengalaman beserta bukti pendukung, serta preferensi pencarian sebagai dasar penilaian kesesuaian tim.
+- **Akun & Data Riwayat Diri** — mahasiswa membuat akun dan mengelola informasi diri, pendidikan, keahlian, minat, pengalaman (nama kegiatan, peran, tahun, dan deskripsi), serta preferensi pencarian sebagai dasar penilaian kesesuaian tim.
 - **Pembuatan Tim** — mahasiswa membuat, melihat, mengubah, dan menghapus tim beserta kebutuhan anggota dan dokumen pendukung untuk suatu kegiatan.
-- **Pencarian Tim & Pengajuan Bergabung** — pencari tim melihat feed tim, mencari dan menyaring tim, serta mengajukan permintaan bergabung; pembuat tim melihat serta menerima atau menolak pengajuan.
+- **Pencarian Tim & Pengajuan Bergabung** — pencari tim melihat feed tim, mencari dan menyaring tim, serta mengajukan permintaan bergabung dengan memilih posisi yang dilamar; pembuat tim melihat serta menerima atau menolak pengajuan.
 - **Pencarian Anggota & Pengajuan Anggota** — pembuat tim mencari calon anggota berdasarkan nama, keahlian, pengalaman, dan minat, melihat profil calon anggota, serta mengajukan permintaan bergabung yang dapat diterima atau ditolak calon anggota.
 - **Notifikasi** — memberikan informasi kepada pengguna mengenai pembaruan data riwayat diri, pengajuan bergabung, pengajuan kepada calon anggota, dan perubahan status pengajuan.
 
 ### Constraints
 - Platform Android minimal versi 8.0 (Oreo), dibangun menggunakan Flutter.
-- Backend dan penyimpanan data (termasuk file bukti pendukung dan dokumen pendukung tim) menggunakan server/database lokal, tidak menggunakan Firebase.
+- Backend dan penyimpanan data (termasuk dokumen pendukung tim) menggunakan server/database lokal, tidak menggunakan Firebase.
 - Interaksi murni antar mahasiswa (user-to-user) tanpa peran admin/moderator.
