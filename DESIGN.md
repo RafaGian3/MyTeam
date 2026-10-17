@@ -12,10 +12,11 @@
 | **Fakultas / Kampus** | Teknologi Informasi, Universitas Andalas |
 | **Versi Dokumen** | **1.0.0 (Official Design Guide)** |
 | **Tanggal Terbit** | 11 Oktober 2026 |
-| **Dokumen Acuan** | PRD MyTeam Versi 1.3 & API Specification Contract Versi 1.3.0 |
+| **Dokumen Acuan** | PRD MyTeam Versi 1.0 & API Specification Contract Versi 1.0.0 |
 | **Tipografi Utama** | Google Font: **Inter** |
 | **Warna Utama Brand** | **Unand Emerald Green** (`#008000` / `#006400`) |
-| **Anggota Tim (4 Mahasiswa)** | 1. **Nayla Puspita Sari** (2411521007) — *PIC Modul 4*<br>2. **Diva Ramadhani** (2411521017) — *PIC Modul 3*<br>3. **Fuadi Dhiyaulhaq** (2411522001) — *PIC Modul 1*<br>4. **Rafa Gian Atthari** (2411522014) — *PIC Modul 2* |
+| **Aset Logo Utama** | `assets/images/logo-MyTeam.png` (Dimensi: 1254 × 1254 px) |
+| **Anggota Tim (4 Mahasiswa)** | 1. **Fuadi Dhiyaulhaq** (2411522001) — *PIC Modul 1*<br>2. **Nayla Puspita Sari** (2411521007) — *PIC Modul 2*<br>3. **Rafa Gian Atthari** (2411522014) — *PIC Modul 3*<br>4. **Diva Ramadhani** (2411521017) — *PIC Modul 4* |
 
 ---
 
@@ -27,6 +28,28 @@ Gaya visual yang diusung adalah **_Modern Academic Minimal_**:
 * **Terstruktur & Berdensitas Tinggi:** Tata letak rapi dengan legibilitas teks yang tinggi untuk membaca abstrak kegiatan dan profil akademik.
 * **Pendekatan Tactile & Ergonomis:** Menggunakan sudut membulat (*rounded corners*) yang lembut dan bersahabat bagi interaksi sentuhan layar sentuh mobile.
 * **Identitas Hijau Unand (Emerald Green):** Menghindari kesan birokratis yang kaku dengan kombinasi putih bersih (*pure white canvas*), aksen hijau zamrud yang melambangkan pertumbuhan dan kebanggaan almamater, serta aksen semantik yang kaya.
+
+### 1.1 Identitas Brand & Aset Logo Aplikasi (`logo-MyTeam.png`)
+
+Logo resmi aplikasi **MyTeam** merupakan representasi grafis sinergi tim mahasiswa Unand:
+
+| Atribut Aset | Spesifikasi Teknis | Keterangan & Penggunaan |
+| :--- | :--- | :--- |
+| **Nama Berkas** | `logo-MyTeam.png` | Aset master logo berformat PNG transparan. |
+| **Dimensi Master** | **1254 × 1254 px** | Rasio 1:1 (*Square High-Resolution*), tajam untuk semua kerapatan layar mobile (*xxxhdpi*). |
+| **Lokasi Aset Flutter** | `assets/images/logo-MyTeam.png` | Struktur standar aset Flutter (didaftarkan di `pubspec.yaml`). |
+| **Palet Warna Dominan** | Emerald Green (`#008000` / `#006400`) | Selaras dengan warna identitas almamater Universitas Andalas. |
+
+#### Panduan Penggunaan Logo pada Antarmuka (UI Guidelines):
+1. **Layar Pembuka (*Splash Screen*):** 
+   - Tampilkan logo di tengah layar (*center aligned*) dengan ukuran render `128 × 128 dp` atau `140 × 140 dp`.
+   - Diiringi tipografi nama aplikasi **"MyTeam"** menggunakan font Inter Bold (24sp).
+2. **Bilah Aplikasi (*AppBar / Top Navigation*):** 
+   - Gunakan versi *logo mark* kompak dengan ukuran render `36 × 36 dp` atau `40 × 40 dp` di samping judul halaman utama / beranda.
+3. **Status Kosong & Dialog (*Empty State / About Dialog*):**
+   - Dapat digunakan sebagai ilustrasi dengan opasitas redup (50% - 70%) dan ukuran render `96 × 96 dp`.
+4. **Ikon Peluncur Aplikasi (*App Launcher Icon*):**
+   - Master aset `1254 × 1254 px` ini digunakan sebagai acuan *source icon* untuk di-*generate* menjadi berbagai ukuran launcher icon Android (`android/app/src/main/res/mipmap-*`).
 
 ---
 
@@ -180,13 +203,81 @@ Diterapkan pada Feed Tim (FR-14) dan Hasil Pencarian Tim (FR-15):
 
 ---
 
-### 3.6 Navigasi Bawah (*Bottom Navigation Bar*)
-* 4 Tab Utama:
-  1. **Beranda / Feed Tim** (Ikon: `Icons.explore_outlined` / `explore`)
-  2. **Tim Saya** (Ikon: `Icons.groups_outlined` / `groups`)
-  3. **Cari Rekan** (Ikon: `Icons.person_search_outlined` / `person_search`)
-  4. **Profil & Notifikasi** (Ikon: `Icons.account_circle_outlined` / `account_circle`)
-* Tab aktif: Berwarna `#008000` dengan titik indikator 4px di bawah ikon. Tab non-aktif: `#6B7280`.
+### 3.6 Navigasi Bawah (*Bottom Navigation Bar — Flat Instagram Style*)
+* Format: Rata lurus (*flat surface*), tinggi `58dp`, border atas `1px solid #E5E7EB`, latar `#FFFFFF`.
+* 5 Tab Utama (Tepat 1 Kata per Tab):
+  1. **Beranda** (Ikon: `Icons.home_outlined` / `home_rounded`) — Feed kegiatan & rekomendasi tim
+  2. **Cari** (Ikon: `Icons.search_rounded`) — Pencarian tim & talenta mahasiswa
+  3. **MyTeam** (Ikon: `Icons.groups_outlined` / `groups_rounded`) — Pembentukan & manajemen tim
+  4. **Notifikasi** (Ikon: `Icons.notifications_none_rounded` / `notifications_rounded`) — Pusat pembaruan status & lamaran
+  5. **Profil** (Ikon: `Icons.person_outline_rounded` / `person_rounded`) — Rekam jejak & portofolio akademik
+* Tab aktif: Berwarna `#006400` (Emerald Unand) dengan label tebal `FontWeight.w700`. Tab non-aktif: `#6B7280`.
+
+### 3.6.1 Header Universal Berlogo & Tombol Refresh (*Consistent Branded AppBar*)
+* Seluruh 5 halaman utama (*Beranda*, *Cari*, *MyTeam*, *Notifikasi*, dan *Profil*) memiliki struktur AppBar yang 100% konsisten:
+  * **Sisi Kiri:** Logo resmi MyTeam (`assets/images/logo-MyTeam.png`, `36x36px`) berbingkai radius `10px` dengan bayangan halus, disandingkan dengan teks tebal `"MyTeam"` (`#006400`, 20sp) dan subtitle dinamis sesuai konteks modul.
+  * **Sisi Kanan:** Tombol **Segarkan / Refresh** (`Icons.refresh_rounded`, `#006400`) di dalam kontainer berukuran `38x38px` dengan border `1px solid #E5E7EB` dan radius `10px`.
+* Memastikan keseragaman identitas visual dan kemudahan pengguna memperbarui data di seluruh sudut aplikasi.
+
+---
+
+### 3.7 Sub-Tab Segmented Pill Control (*Basecoat UI / Shadcn Style*)
+Sub-navigasi internal pada halaman profil (Modul 1) menggunakan komponen Segmented Pill Control modern terinspirasi dari **Basecoat UI / Shadcn UI**:
+* **Track Kontainer:**
+  * Latar: `#F3F4F6` (Abu-abu netral lembut), tinggi `40dp`, padding `3dp`, radius sudut `12dp`.
+  * Border luar: `0.8px solid #E5E7EB`.
+* **Perilaku Dinamis (*Dynamic Expanding Pill*):**
+  * **Tab Aktif (Selected):** Mengembang secara proporsional (`flex: 4`), latar putih `#FFFFFF` dengan bayangan halus (*elevation 1*, blur `4px`), menampilkan **Ikon + Teks Label** tebal berwarna `#006400`.
+  * **Tab Tidak Aktif (Unselected):** Kompak dan ramping (`flex: 2`), **hanya menampilkan Ikon Simbol** berwarna `#6B7280` tanpa teks label.
+* **Tujuan Ergonomis & UX:**
+  * Menghilangkan masalah *text truncation / clipping* (teks "Pengalaman" yang sebelumnya terpotong menjadi "Pengalam...").
+  * Memaksimalkan kenyamanan sentuhan jempol pada layar mobile berlebar sempit (≤ 360dp).
+* **Pemetaan Simbol Ikon (Sesuai Struktur PRD):**
+  1. **Tentang:** `Icons.person_rounded` (Biodata akademik, bio, kontak, media sosial, serta kartu riwayat *Tim yang Diikuti* sebelum tombol keluar sesi)
+  2. **Minat:** `Icons.interests_rounded` (Daftar minat bidang / topik pengembangan mahasiswa — FR-04)
+  3. **Keahlian:** `Icons.auto_awesome_rounded` (Daftar keahlian teknis/soft skills mahasiswa — FR-03)
+  4. **Pengalaman:** `Icons.workspace_premium_rounded` (Rekam jejak kegiatan, peran kepanitiaan, dan lomba — FR-05)
+
+* **Penempatan Kartu Tim yang Diikuti (FR-06):**
+  * Demi simplifikasi navigasi dan fokus modul, kartu *Tim yang Diikuti* dipindahkan ke bagian bawah tab **Tentang**, tepat di atas tombol keluar sesi (*Logout*). Sub-navbar menjadi murni berfokus pada 4 domain utama: *Tentang*, *Minat*, *Keahlian*, dan *Pengalaman*.
+
+### 3.8 Kartu Identitas Horizontal (*Hero Profile Card*) & Pusat Kendali Profil (*Settings Hub*)
+* **Tata Letak Horizontal (*Left-to-Right Hero*):**
+  * **Sisi Kiri:** Foto profil (`CircleAvatar` radius `36dp`) dilengkapi tombol ganti foto kamera.
+  * **Sisi Tengah:** Nama lengkap mahasiswa (Inter Bold 16sp), teks NIM (`#6B7280`), dan badge status hijau muda `"Mahasiswa Aktif"`.
+  * **Sisi Kanan:** Tombol **Pengaturan & Kelola Profil** (`Icons.settings_outlined`) yang membuka bottom sheet modal lengkap sebagai pusat kendali seluruh Modul 1.
+* **Pusat Kendali Profil Komprehensif (*Management Hub Bottom Sheet*):**
+  * Modal bottom sheet pengaturan menyediakan menu pengelolaan lengkap yang terbagi rapi ke dalam 3 kelompok:
+    1. **DATA DIRI & PROFIL:**
+       * **Perbarui Foto Profil** (`Icons.camera_alt_outlined`) — Membuka bottom sheet pemilih foto berkas atau avatar mahasiswa default.
+       * **Edit Biodata & Kontak** (`Icons.badge_outlined`) — Membuka dialog formulir data akademik, bio, dan nomor WhatsApp.
+       * **Kelola Media Sosial** (`Icons.share_outlined`) — Menavigasikan ke tab Tentang dan membuka dialog penambahan tautan medsos/portofolio.
+    2. **KOMPETENSI & REKAM JEJAK:**
+       * **Kelola Minat Bidang** (`Icons.interests_rounded`, badge *Tab Minat*) — Membuka tab Minat untuk melihat, menambah, atau menghapus topik ketertarikan.
+       * **Kelola Keahlian Teknis** (`Icons.psychology_outlined`, badge *Tab Keahlian*) — Membuka tab Keahlian untuk mengelola skill teknis dan level kemahiran.
+       * **Kelola Riwayat Pengalaman** (`Icons.workspace_premium_outlined`, badge *Tab Pengalaman*) — Membuka tab Pengalaman untuk mengelola rekam jejak organisasi, lomba, dan proyek.
+    3. **APLIKASI & AKUN:**
+       * **Tentang Aplikasi MyTeam** (`Icons.info_outline_rounded`) — Menampilkan dialog modal identitas aplikasi (v1.0.1 • Universitas Andalas).
+       * **Keluar dari Akun** (`Icons.logout_rounded`, destruktif merah) — Membuka bottom sheet konfirmasi keluar sesi akun dengan aman.
+* **Hierarki Kartu Tab Tentang & Aksi Edit Ringkas:**
+  * **Urutan Kartu:** Kartu **Tentang Saya** diletakkan di posisi paling atas tab, diikuti oleh kartu **Akademik** (pengganti ringkas dari *Biodata & Data Akademik*), **Kontak**, **Media Sosial**, dan **Tim yang Diikuti**.
+  * **Aksi Edit Ringkas:** Kartu *Tentang Saya* memuat tombol `[Edit]` ringkas (ikon pensil + label "Edit") untuk memperbarui data diri, bio, prodi, fakultas, IPK, dan nomor kontak secara terpadu.
+* **Validasi Konfirmasi Hapus (*Destructive Confirmation Dialog*):**
+  * Seluruh aksi hapus pada item portofolio (*Media Sosial*, *Minat*, *Keahlian*, dan *Pengalaman*) dilengkapi dialog konfirmasi modal (`AlertDialog`) dengan peringatan nama item, serta **dua tombol berukuran simetris (50:50)**: tombol *Batal* (`OutlinedButton` abu-abu netral) dan tombol *Hapus* (`ElevatedButton` merah destruktif) dengan tinggi dan radius membulat yang persis sama.
+
+### 3.9 Layar Rangka Anatomi & Pemuatan Mulus (*Skeleton Screen & Seamless Loading*)
+* **Pola Pemuatan Mulus (*Stale-While-Revalidate*):**
+  * Menghilangkan *spinner loading* lingkaran yang menghalangi layar (*blocking full-screen spinner*).
+  * Jika data profil sudah pernah dimuat di memori, aplikasi menampilkan data profil secara **instan dan tanpa kedip**, sementara penyegaran data berlangsung hening di latar belakang (*silent background sync*).
+* **Skeleton Screen Mengikuti Anatomi Asli Halaman:**
+  * Hanya saat data belum pernah dimuat sama sekali (inisialisasi awal), aplikasi menampilkan **Skeleton Screen** dengan animasi *pulse/shimmer* lembut (`Curves.easeInOut`, interval 850ms).
+  * Struktur rangka skeleton 100% meniru tata letak visual halaman profil:
+    1. **Hero Card:** Placeholder avatar lingkaran 72px, baris nama, NIM, badge status, dan tombol pengaturan.
+    2. **Segmented Tab Bar:** Track pill abu-abu dengan 4 tab placeholder.
+    3. **Kartu Tentang Saya:** Ikon kotak, judul, dan 3 baris teks bio.
+    4. **Kartu Akademik:** 3 baris item data akademik (Prodi, Fakultas, IPK).
+    5. **Kartu Kontak:** Placeholder kontak WhatsApp dan badge hijau.
+    6. **Kartu Media Sosial:** 2 kontainer item media sosial.
 
 ---
 
@@ -307,7 +398,7 @@ abstract final class AppTextStyles {
 
 ## 5. Ringkasan Sinkronisasi Desain Antarmuka
 
-| Aspek Desain | Keselarasan dengan PRD v1.3 | Keselarasan dengan API Contract |
+| Aspek Desain | Keselarasan dengan PRD v1.0 | Keselarasan dengan API Contract |
 | :--- | :--- | :--- |
 | **Formulir Pengalaman** | Tidak ada field upload gambar/media; input hanya Nama Kegiatan, Peran, Tahun, dan Deskripsi. | Sesuai `POST /profile/pengalaman` (`deskripsi_pengalaman`). |
 | **Pengajuan Bergabung** | Modal pemilihan posisi yang dibuka sebelum mengirim pesan pengajuan. | Sesuai `POST /applications/join-team` (wajib parameter `posisi`). |

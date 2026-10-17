@@ -37,7 +37,7 @@ Pengguna dapat memiliki dua peran:
 - **Pencari Tim** — mencari dan bergabung dengan tim yang sesuai.
 - **Pencari Anggota** — membuat tim dan mencari anggota sesuai kebutuhan.
 
-Satu mahasiswa dapat memiliki kedua peran tersebut dan mengatur preferensi pencarian sesuai kebutuhannya.
+Satu mahasiswa dapat memiliki kedua peran tersebut sesuai dengan kegiatan yang diikutinya.
 
 ---
 
@@ -45,7 +45,7 @@ Satu mahasiswa dapat memiliki kedua peran tersebut dan mengatur preferensi penca
 
 ### 1. Akun & Data Riwayat Diri
 
-Pengguna dapat mengelola informasi diri, pendidikan, media sosial, minat, keahlian, pengalaman beserta bukti pendukung, preferensi pencarian, serta informasi tim yang diikuti.
+Pengguna dapat mengelola informasi diri, pendidikan, media sosial, minat, keahlian, pengalaman (beserta deskripsi pengalaman), serta informasi tim yang diikuti.
 
 ### 2. Pembentukan Tim
 

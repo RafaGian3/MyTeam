@@ -1,0 +1,266 @@
+// =============================================================================
+// DBML (Database Markup Language) - ERD Specification
+// Docs: https://dbml.dbdiagram.io/docs
+// Project: MyTeam – Aplikasi Mobile Pencarian dan Pembentukan Tim Mahasiswa Unand
+// Acuan: schema_myteam.sql, PRD v1.0, & API Specification Contract v1.0.0
+// =============================================================================
+
+Project MyTeam {
+  database_type: 'MySQL'
+  Note: '''
+    # MyTeam Database ERD
+    Platform Mobile Pencarian & Pembentukan Tim Mahasiswa Universitas Andalas.
+    Mendukung alur dua arah: Pencari Tim & Pencari Anggota.
+  '''
+}
+
+// -----------------------------------------------------------------------------
+// BLOK 1: MODUL 1 — PENGGUNA, PROFIL, DAN DATA RIWAYAT DIRI
+// -----------------------------------------------------------------------------
+
+Table Pengguna {
+  id_pengguna varchar(36) [primary key, note: 'UUID / ID Pengguna']
+  nim varchar(10) [unique, not null, note: 'NIM Mahasiswa Unand']
+  kata_sandi varchar(255) [not null, note: 'Hash kata sandi']
+  nama_pengguna varchar(100) [not null, note: 'Nama lengkap mahasiswa']
+  foto_profil varchar(255) [null, note: 'URL / Path file foto profil']
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+
+  Note: 'Tabel entitas induk akun mahasiswa (autentikasi & identitas)'
+}
+
+Table Data_Diri {
+  id_pengguna varchar(36) [primary key, note: 'FK ke Pengguna (1:1)']
+  deskripsi_singkat text [null, note: 'Bio / deskripsi singkat mahasiswa']
+  kontak varchar(20) [not null, note: 'Nomor WhatsApp / telepon aktif']
+  program_studi varchar(50) [not null, note: 'Program Studi di Unand']
+  fakultas varchar(50) [not null, note: 'Fakultas di Unand']
+  ipk decimal(3,2) [not null, note: 'Indeks Prestasi Kumulatif']
+  updated_at timestamp [default: `now()`]
+
+  Note: 'Informasi biodata akademik pengguna (relasi 1:1)'
+}
+
+Table Media_Sosial {
+  id_media_sosial varchar(36) [primary key]
+  id_pengguna varchar(36) [not null]
+  nama_media_sosial varchar(50) [not null, note: 'Misal: LinkedIn, GitHub, Instagram']
+  link_media_sosial varchar(255) [not null, note: 'Tautan URL profil']
+  created_at timestamp [default: `now()`]
+
+  Note: 'Tautan media sosial portofolio pengguna (1:N)'
+}
+
+Table Data_Minat {
+  id_minat varchar(36) [primary key]
+  id_pengguna varchar(36) [not null]
+  minat varchar(100) [not null, note: 'Nama bidang minat']
+  deskripsi_minat text [null, note: 'Penjelasan ketertarikan minat']
+  created_at timestamp [default: `now()`]
+
+  Note: 'Daftar minat mahasiswa untuk penilaian kesesuaian tim'
+}
+
+Table Data_Keahlian {
+  id_keahlian varchar(36) [primary key]
+  id_pengguna varchar(36) [not null]
+  keahlian varchar(100) [not null, note: 'Nama keahlian teknis/softskill']
+  deskripsi_keahlian text [null, note: 'Uraian penguasaan keahlian']
+  created_at timestamp [default: `now()`]
+
+  Note: 'Daftar keahlian mahasiswa sebagai filter pencarian'
+}
+
+Table Data_Pengalaman {
+  id_pengalaman varchar(36) [primary key]
+  id_pengguna varchar(36) [not null]
+  nama_kegiatan varchar(150) [not null, note: 'Nama lomba/penelitian/proyek']
+  peran varchar(100) [not null, note: 'Peran yang diemban']
+  tahun int [not null, note: 'Tahun pelaksanaan kegiatan']
+  deskripsi_pengalaman text [not null, note: 'Deskripsi pengalaman (PRD v1.0: bukti media ditiadakan)']
+  created_at timestamp [default: `now()`]
+
+  Note: 'Riwayat pengalaman kegiatan mahasiswa (FR-05 refinement)'
+}
+
+// -----------------------------------------------------------------------------
+// BLOK 2: MODUL 2 — DATA TIM, KEBUTUHAN, DAN DOKUMEN PENDUKUNG
+// -----------------------------------------------------------------------------
+
+Table Data_Tim {
+  id_tim varchar(36) [primary key]
+  id_pengguna varchar(36) [not null, note: 'FK Pembuat Tim (Ketua)']
+  nama_tim varchar(100) [not null, note: 'Nama tim yang dibentuk']
+  nama_kegiatan varchar(150) [not null, note: 'Nama kegiatan yang akan diikuti']
+  kategori_kegiatan varchar(50) [not null, note: 'Lomba | Penelitian | Proyek | Lainnya']
+  deskripsi text [not null, note: 'Deskripsi tujuan tim & kegiatan']
+  status_tim varchar(20) [not null, default: 'terbuka', note: 'terbuka | ditutup']
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+
+  Note: 'Informasi tim yang dibentuk oleh mahasiswa (FR-09 s/d FR-12)'
+}
+
+Table Kebutuhan_Anggota_Tim {
+  id_kebutuhan varchar(36) [primary key]
+  id_tim varchar(36) [not null]
+  posisi_dibutuhkan varchar(100) [not null, note: 'Nama posisi yang dibuka']
+  keahlian_dibutuhkan varchar(255) [not null, note: 'Syarat keahlian yang dicari']
+  jumlah_anggota_dibutuhkan int [not null, default: 1, note: 'Kuota yang dibutuhkan']
+  created_at timestamp [default: `now()`]
+
+  Note: 'Kriteria posisi dan keahlian yang dicari oleh pembuat tim'
+}
+
+Table Dokumen_Pendukung {
+  id_dokumen varchar(36) [primary key]
+  id_tim varchar(36) [not null]
+  jenis_dokumen varchar(20) [not null, note: 'poster | panduan']
+  nama_file varchar(255) [not null, note: 'Nama asli berkas']
+  path_file varchar(255) [not null, note: 'Path berkas di server backend']
+  urutan int [default: 1]
+  uploaded_at timestamp [default: `now()`]
+
+  Note: 'Berkas poster atau panduan kegiatan tim (tanpa Firebase Storage)'
+}
+
+Table Anggota_Tim {
+  id_anggota_tim varchar(36) [primary key]
+  id_tim varchar(36) [not null]
+  id_pengguna varchar(36) [not null]
+  posisi varchar(100) [not null, note: 'Posisi yang ditempati anggota']
+  joined_at timestamp [default: `now()`]
+
+  Note: 'Mahasiswa yang resmi menjadi anggota suatu tim'
+}
+
+// -----------------------------------------------------------------------------
+// BLOK 3: MODUL 3 & 4 — PENGAJUAN BERGABUNG, PENGAJUAN ANGGOTA & NOTIFIKASI
+// -----------------------------------------------------------------------------
+
+Table Pengajuan_Bergabung_Tim {
+  id_pengajuan_bergabung_tim varchar(36) [primary key]
+  id_tim varchar(36) [not null, note: 'Tim yang dilamar']
+  id_pengguna varchar(36) [not null, note: 'Pelamar (Pencari Tim)']
+  posisi varchar(100) [not null, note: 'Wajib: Posisi yang dilamar (FR-17 refinement)']
+  pesan_pengajuan text [not null, note: 'Pesan motivasi / alasan melamar']
+  waktu_pengajuan timestamp [default: `now()`]
+  status_pengajuan varchar(20) [not null, default: 'menunggu', note: 'menunggu | diterima | ditolak']
+
+  Note: 'Lamaran pencari tim ke tim yang dibuka (FR-17)'
+}
+
+Table Pengajuan_Anggota {
+  id_pengajuan_anggota varchar(36) [primary key]
+  id_tim varchar(36) [not null, note: 'Tim yang mengajak']
+  id_pengguna varchar(36) [not null, note: 'Calon anggota yang diajak']
+  posisi varchar(100) [not null, note: 'Posisi yang ditawarkan pembuat tim; wajib sesuai kebutuhan tim yang masih tersedia']
+  pesan_pengajuan text [not null, note: 'Pesan ajakan dari pembuat tim']
+  waktu_pengajuan timestamp [default: `now()`]
+  status_pengajuan varchar(20) [not null, default: 'menunggu', note: 'menunggu | diterima | ditolak; kuota penuh saat diterima menyebabkan status ditolak']
+
+  Note: 'Undangan rekrutmen dari pembuat tim ke kandidat; saat diterima, anggota ditambahkan ke Anggota_Tim jika kuota posisi tersedia (FR-23, FR-24)'
+}
+
+Table Notifikasi {
+  id_notifikasi varchar(36) [primary key]
+  id_pengguna varchar(36) [not null, note: 'Penerima notifikasi']
+  id_pengajuan_bergabung_tim varchar(36) [null, note: 'Relasi opsional jika terkait lamaran tim']
+  id_pengajuan_anggota varchar(36) [null, note: 'Relasi opsional jika terkait undangan rekrutmen']
+  jenis_notifikasi varchar(50) [not null, note: 'aktivitas_profil | pengajuan_masuk | pengajuan_diterima | undangan_masuk | respon_undangan | dll']
+  pesan_notifikasi text [not null, note: 'Isi teks notifikasi']
+  waktu_notifikasi timestamp [default: `now()`]
+  status_dibaca boolean [default: false, note: 'Status sudah dibaca / belum']
+
+  Note: 'Pemberitahuan sistem multi-modul (FR-07, FR-12, FR-20, FR-25)'
+}
+
+// -----------------------------------------------------------------------------
+// RELASI ANTAR TABEL (RELATIONSHIPS / FOREIGN KEYS)
+// -----------------------------------------------------------------------------
+
+// Modul 1: Relasi Pengguna & Profil
+Ref: Pengguna.id_pengguna - Data_Diri.id_pengguna [delete: cascade, update: cascade]
+Ref: Pengguna.id_pengguna < Media_Sosial.id_pengguna [delete: cascade, update: cascade]
+Ref: Pengguna.id_pengguna < Data_Minat.id_pengguna [delete: cascade, update: cascade]
+Ref: Pengguna.id_pengguna < Data_Keahlian.id_pengguna [delete: cascade, update: cascade]
+Ref: Pengguna.id_pengguna < Data_Pengalaman.id_pengguna [delete: cascade, update: cascade]
+
+// Modul 2: Relasi Data Tim & Manajemen Tim
+Ref: Pengguna.id_pengguna < Data_Tim.id_pengguna [delete: cascade, update: cascade]
+Ref: Data_Tim.id_tim < Kebutuhan_Anggota_Tim.id_tim [delete: cascade, update: cascade]
+Ref: Data_Tim.id_tim < Dokumen_Pendukung.id_tim [delete: cascade, update: cascade]
+
+// Keanggotaan Tim (Many-to-Many Pengguna <-> Data_Tim)
+Ref: Data_Tim.id_tim < Anggota_Tim.id_tim [delete: cascade, update: cascade]
+Ref: Pengguna.id_pengguna < Anggota_Tim.id_pengguna [delete: cascade, update: cascade]
+
+// Modul 3: Pengajuan Bergabung ke Tim (Pencari Tim -> Tim)
+Ref: Data_Tim.id_tim < Pengajuan_Bergabung_Tim.id_tim [delete: cascade, update: cascade]
+Ref: Pengguna.id_pengguna < Pengajuan_Bergabung_Tim.id_pengguna [delete: cascade, update: cascade]
+
+// Modul 4: Pengajuan Anggota (Pembuat Tim -> Calon Anggota)
+Ref: Data_Tim.id_tim < Pengajuan_Anggota.id_tim [delete: cascade, update: cascade]
+Ref: Pengguna.id_pengguna < Pengajuan_Anggota.id_pengguna [delete: cascade, update: cascade]
+
+// Notifikasi Terpusat
+Ref: Pengguna.id_pengguna < Notifikasi.id_pengguna [delete: cascade, update: cascade]
+Ref: Pengajuan_Bergabung_Tim.id_pengajuan_bergabung_tim < Notifikasi.id_pengajuan_bergabung_tim [delete: cascade, update: cascade]
+Ref: Pengajuan_Anggota.id_pengajuan_anggota < Notifikasi.id_pengajuan_anggota [delete: cascade, update: cascade]
+
+// -----------------------------------------------------------------------------
+// DUMMY RECORDS (Data Simulasi Nyata 4 Mahasiswa Pengembang MyTeam)
+// -----------------------------------------------------------------------------
+
+Records Pengguna(id_pengguna, nim, kata_sandi, nama_pengguna, foto_profil) {
+  'usr_fuadi_01', '2411522001', '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77EFr6', 'Fuadi Dhiyaulhaq', 'profiles/usr_fuadi_01.jpg'
+  'usr_rafa_02',  '2411522014', '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77EFr6', 'Rafa Gian Atthari', 'profiles/usr_rafa_02.jpg'
+  'usr_diva_03',  '2411521017', '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77EFr6', 'Diva Ramadhani', 'profiles/usr_diva_03.jpg'
+  'usr_nayla_04', '2411521007', '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77EFr6', 'Nayla Puspita Sari', 'profiles/usr_nayla_04.jpg'
+}
+
+Records Data_Diri(id_pengguna, deskripsi_singkat, kontak, program_studi, fakultas, ipk) {
+  'usr_fuadi_01', 'Tertarik pada Mobile Development dengan Flutter & arsitektur clean code.', '081267891011', 'Sistem Informasi', 'Teknologi Informasi', 3.85
+  'usr_rafa_02',  'Antusias dalam Machine Learning, Computer Vision, dan arsitektur sistem.', '081267891012', 'Sistem Informasi', 'Teknologi Informasi', 3.80
+  'usr_diva_03',  'UI/UX Designer yang berfokus pada design thinking dan user-centric product.', '081267891013', 'Sistem Informasi', 'Teknologi Informasi', 3.82
+  'usr_nayla_04', 'Tech researcher dan data analyst untuk pengembangan aplikasi sosial cerdas.', '081267891014', 'Sistem Informasi', 'Teknologi Informasi', 3.88
+}
+
+Records Data_Tim(id_tim, id_pengguna, nama_tim, nama_kegiatan, kategori_kegiatan, deskripsi, status_tim) {
+  'tim_gemastik_01', 'usr_rafa_02', 'Tim Robotik Cerdas Unand', 'GEMASTIK XVII Divisi Software Development', 'Lomba', 'Membangun aplikasi mobile pemantau dan pengendali robot otonom berbasis computer vision.', 'terbuka'
+  'tim_pkm_02',      'usr_nayla_04', 'Inovator Pangan Unand', 'PKM Riset Eksakta (PKM-RE) 2026', 'Penelitian', 'Riset komputasi dan pemodelan kecerdasan buatan untuk optimasi rantai pasok pangan lokal.', 'terbuka'
+  'tim_fuadi_03',    'usr_fuadi_01', 'Aplikasi Jelajah Kampus', 'Unand Digital Innovation Challenge 2026', 'Proyek', 'Mengembangkan aplikasi Flutter untuk membantu mahasiswa menemukan fasilitas dan layanan kampus.', 'terbuka'
+  'tim_rafa_04',     'usr_rafa_02', 'Sistem Irigasi Cerdas', 'Kompetisi Inovasi Teknologi Pertanian 2026', 'Lomba', 'Merancang sistem IoT dan backend untuk pemantauan irigasi lahan pertanian.', 'terbuka'
+  'tim_diva_05',     'usr_diva_03', 'Ruang Belajar Inklusif', 'Program Kreativitas Mahasiswa Pengabdian 2026', 'Penelitian', 'Mendesain pengalaman belajar digital yang mudah diakses oleh mahasiswa dengan beragam kebutuhan.', 'terbuka'
+  'tim_diva_06',     'usr_diva_03', 'Dashboard Data Kampus', 'Unand Data Visualization Project 2026', 'Proyek', 'Membuat dashboard interaktif untuk menyajikan data layanan dan aktivitas kampus.', 'terbuka'
+  'tim_diva_07',     'usr_diva_03', 'Kampanye Literasi Digital', 'Kompetisi Konten Edukasi Digital 2026', 'Lomba', 'Menyusun kampanye konten edukasi keamanan dan literasi digital bagi mahasiswa.', 'terbuka'
+}
+
+Records Kebutuhan_Anggota_Tim(id_kebutuhan, id_tim, posisi_dibutuhkan, keahlian_dibutuhkan, jumlah_anggota_dibutuhkan) {
+  'keb_01', 'tim_gemastik_01', 'Frontend Flutter', 'Flutter, Dart, REST API Integration, Responsive UI', 1
+  'keb_02', 'tim_gemastik_01', 'UI/UX Designer', 'Figma, Wireframing, User Testing, Design System', 1
+  'keb_03', 'tim_pkm_02', 'Mobile App Developer', 'Flutter / Android Native, SQLite / Local Cache', 1
+  'keb_04', 'tim_pkm_02', 'Data Analyst', 'Python, Data Modeling, Descriptive Statistics', 1
+  'keb_05', 'tim_fuadi_03', 'Flutter Developer', 'Flutter, Dart, REST API', 1
+  'keb_06', 'tim_rafa_04', 'IoT Engineer', 'ESP32, sensor, MQTT', 1
+  'keb_07', 'tim_diva_05', 'UI/UX Designer', 'Figma, accessibility, user research', 1
+  'keb_08', 'tim_diva_06', 'Data Visualization Designer', 'Figma, dashboard design, data storytelling', 1
+  'keb_09', 'tim_diva_07', 'Content Designer', 'Copywriting, visual design, social media', 1
+}
+
+Records Pengajuan_Bergabung_Tim(id_pengajuan_bergabung_tim, id_tim, id_pengguna, posisi, pesan_pengajuan, status_pengajuan) {
+  'pbg_01', 'tim_gemastik_01', 'usr_diva_03', 'UI/UX Designer', 'Halo Rafa! Saya sangat tertarik bergabung dengan Tim Robotik Cerdas. Portofolio saya di Figma berfokus pada dashboard interaktif yang cocok untuk telemetri robot tim Anda.', 'diterima'
+  'pbg_02', 'tim_gemastik_01', 'usr_fuadi_01', 'Frontend Flutter', 'Halo Rafa, perkenalkan saya Fuadi. Saya memiliki keahlian mendalam di Flutter dan konsumsi REST API. Saya siap mendedikasikan waktu untuk membangun aplikasi telemetri tim GEMASTIK ini.', 'menunggu'
+}
+
+Records Anggota_Tim(id_anggota_tim, id_tim, id_pengguna, posisi) {
+  'ang_01', 'tim_gemastik_01', 'usr_diva_03', 'UI/UX Designer'
+}
+
+Records Notifikasi(id_notifikasi, id_pengguna, id_pengajuan_bergabung_tim, id_pengajuan_anggota, jenis_notifikasi, pesan_notifikasi, status_dibaca) {
+  'notif_01', 'usr_fuadi_01', null, null,     'aktivitas_profil',    'Data riwayat diri dan portofolio Anda berhasil diperbarui di sistem MyTeam.', true
+  'notif_02', 'usr_rafa_02',  'pbg_01', null, 'pengajuan_masuk',     'Diva Ramadhani mengajukan diri untuk bergabung pada posisi UI/UX Designer di tim Anda (Tim Robotik Cerdas Unand).', true
+  'notif_03', 'usr_diva_03',  'pbg_01', null, 'pengajuan_diterima',  'Selamat! Pengajuan bergabung Anda untuk posisi UI/UX Designer pada Tim Robotik Cerdas Unand telah diterima oleh Rafa Gian Atthari.', true
+  'notif_04', 'usr_rafa_02',  'pbg_02', null, 'pengajuan_masuk',     'Fuadi Dhiyaulhaq mengajukan diri untuk bergabung pada posisi Frontend Flutter di tim Anda (Tim Robotik Cerdas Unand).', false
+}

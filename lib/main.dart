@@ -1,51 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
+import 'core/theme/app_theme.dart';
+import 'core/storage/storage_service.dart';
+import 'routes.dart';
 
-import 'providers/app_provider.dart';
-import 'screens/auth/auth_screen.dart';
-import 'screens/home/home_screen.dart';
-import 'theme/app_colors.dart';
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-void main() {
-  runApp(const MyApp());
+  // Lock orientasi ke portrait
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // Cek status sesi (apakah sudah login)
+  final bool isLoggedIn = await StorageService.isLoggedIn();
+
+  runApp(MyTeamApp(isLoggedIn: isLoggedIn));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyTeamApp extends StatelessWidget {
+  final bool isLoggedIn;
+
+  const MyTeamApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AppProvider(),
-      child: MaterialApp(
-        title: 'MyTeam Unand',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
-          scaffoldBackgroundColor: AppColors.background,
-          fontFamily: 'Arial',
-          useMaterial3: true,
-        ),
-        home: const _AppShell(),
-      ),
+    return MaterialApp(
+      title: 'MyTeam',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
+      initialRoute: AppRoutes.splash,
+      routes: AppRoutes.routes,
     );
-  }
-}
-
-class _AppShell extends StatefulWidget {
-  const _AppShell();
-
-  @override
-  State<_AppShell> createState() => _AppShellState();
-}
-
-class _AppShellState extends State<_AppShell> {
-  bool isAuthenticated = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return isAuthenticated
-        ? const HomeScreen()
-        : AuthScreen(onAuthenticated: () => setState(() => isAuthenticated = true));
   }
 }

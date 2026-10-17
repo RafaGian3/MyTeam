@@ -1,6 +1,6 @@
 {
-    "name": "myteam_project",
-    "short_name": "myteam_project",
+    "name": "myteam",
+    "short_name": "myteam",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

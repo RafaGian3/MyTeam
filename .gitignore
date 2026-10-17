@@ -4,7 +4,6 @@
 *.pyc
 *.swp
 .DS_Store
-desktop.ini
 .atom/
 .build/
 .buildlog/
@@ -13,28 +12,11 @@ desktop.ini
 .swiftpm/
 migrate_working_dir/
 
-# Local environment and secrets
-.env
-.env.*
-!.env.example
-*.secret
-secrets.json
-credentials.json
-**/key.properties
-**/*.jks
-**/*.keystore
-**/google-services.json
-**/GoogleService-Info.plist
-lib/firebase_options.dart
-
 # IntelliJ related
 *.iml
 *.ipr
 *.iws
 .idea/
-
-# VS Code local settings
-.vscode/
 
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
@@ -51,9 +33,6 @@ lib/firebase_options.dart
 /build/
 /coverage/
 
-# Android local machine configuration
-/android/local.properties
-
 # Symbolication related
 app.*.symbols
 
@@ -61,9 +40,11 @@ app.*.symbols
 app.*.map.json
 
 # Android Studio will place build artifacts here
+.gradle/
+/android/.gradle/
+/android/build/
+/android/app/build/
 /android/app/debug
 /android/app/profile
 /android/app/release
 
-# Widget Preview related
-.widget_preview/
